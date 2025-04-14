@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class TargetBehaviour : MonoBehaviour
 {
-    public bool intendedTarget = false;
+    public int targetID;
+    public bool isSelected = false;
     /// <summary> The anchor. </summary>
     [Header("Window Settings")]
     [SerializeField, Tooltip("What part of the view port to anchor the object to.")]
@@ -18,23 +20,32 @@ public class TargetBehaviour : MonoBehaviour
     {
         
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.name == "touchtip")
+        {
+            isSelected = true;
+        }
+    }
     
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.name == "touchtip")
+        {
+            isSelected = false;
+        }
+    }
+
     public void OnTargetSelect()
     {
-        if(intendedTarget)
-            this.GetComponent<MeshRenderer>().material.color = Color.green;
-        else
-            this.GetComponent<MeshRenderer>().material.color = Color.red;
+        GetComponent<MeshRenderer>().material.color = Color.green;
     }
 
     public void OnTargetDeselect()
     {
-        LeanTween.color(this.gameObject, Color.white, 0.5f);
-        if (intendedTarget)
-        {
-            TargetManager.Instance.hasTargetActivated = false;
-            intendedTarget = false;
-        }
+        //LeanTween.color(this.gameObject, Color.white, 0.5f);
+        GetComponent<MeshRenderer>().material.color = Color.white;
     }
 }
 

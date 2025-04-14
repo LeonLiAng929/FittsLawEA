@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Meta.XR.MRUtilityKit.SceneDecorator;
 using Oculus.Interaction;
+using Oculus.Platform.Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -11,7 +13,7 @@ public class TargetManager : MonoBehaviour
 {
     public bool toggle=true;
     public static TargetManager Instance;
-    public float timer = 0;
+ 
     /// <summary> The follow speed. </summary>
     [SerializeField, Range(0.0f, 100.0f), Tooltip("How quickly to interpolate the object towards its target position and rotation.")]
     protected float FollowSpeed;
@@ -44,7 +46,36 @@ public class TargetManager : MonoBehaviour
     protected float defaultHeight;
     
     private Transform CenterCamera;
-    public bool hasTargetActivated = false;
+    
+    public List<TargetBehaviour> targets = new List<TargetBehaviour>();
+    public int currentTarget = 0;
+    public bool forward = true; //true: currTarget + 6, false: currTarget - 5
+    public bool trialStarted = false;
+    public bool trialEnded = false;
+    public float timer = 0;
+    public GameObject touchTip;
+    
+    #region ForUserStudy
+    /*public List<float> speed = new List<float>();
+    public List<float> distance = new List<float>();
+    public List<float> size = new List<float>();
+    public List<float> indexOfDifficulty = new List<float>(); //Mathf.Log((distance[0]/size[0])+1,2);*/
+    public List<float> movementTime = new List<float>();
+    public List<float> timestamp = new List<float>();
+    public List<Vector3> targetPositions = new List<Vector3>();
+    public List<Vector3> selectionPositions = new List<Vector3>();
+    public List<Quaternion> selectionQuaternions = new List<Quaternion>();
+    public List<bool> successfulSelection = new List<bool>();
+    public List<Quaternion> rawQuaternions = new List<Quaternion>();
+    public List<Vector3> rawPositions = new List<Vector3>();
+    public float cumulativeTime = 0;
+    #endregion ForUserStudy
+
+    public GameObject finishText;
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     /// <summary> Starts this object. </summary>
     protected void Start()
@@ -54,13 +85,44 @@ public class TargetManager : MonoBehaviour
         VerticalRotation = Quaternion.AngleAxis(defaultRotation.x, Vector3.up);
         VerticalRotationInverse = Quaternion.Inverse(VerticalRotation);
         CenterCamera = cameraRig.centerEyeAnchor;
-        InitialiseTargets();
-        Instance = this;
-        toggle=true;
-        this.InstantiateInCircle(this.prefabToInstantiate, new Vector3(0, 0, 0), 11, 0.2f, 2.1f);
-        prefabToInstantiate.SetActive(false);
+        toggle = true;
+        
+
+        //InstantiateInCircle(this.prefabToInstantiate, targetContainer.position, 11, 0.035f, 0.2f, 0);
+        //prefabToInstantiate.SetActive(false);
+
+    }
+
+    public void Reset()
+    {
+        targets = new List<TargetBehaviour>();
+        currentTarget = 0;
+        forward = true;
+        trialStarted = false;
+        trialEnded = false;
+        timer = 0;
+        /*speed = new List<float>();
+        distance = new List<float>();
+        size = new List<float>();
+        indexOfDifficulty = new List<float>();*/
+        movementTime = new List<float>();
+        targetPositions = new List<Vector3>();
+        selectionPositions = new List<Vector3>();
+        successfulSelection = new List<bool>();
+        rawQuaternions = new List<Quaternion>();
+        rawPositions = new List<Vector3>();
+
+        foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
+        {
+            Destroy(target.gameObject);
+        }
     }
     
+    public void ShowFinishText()
+    {
+        finishText.SetActive(true);
+    }
+
     public void InitialiseTargets()
     {
         foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
@@ -123,6 +185,26 @@ public class TargetManager : MonoBehaviour
 
     protected virtual void LateUpdate()
     {
+        if (!trialEnded)
+        {
+            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
+            {
+                selectionPositions.Add(touchTip.transform.position);
+                successfulSelection.Add(targets[currentTarget].isSelected);
+                selectionQuaternions.Add(touchTip.transform.rotation);
+                timestamp.Add(cumulativeTime);
+                ProceedTrial();
+                if (!trialStarted)
+                {
+                    trialStarted = true;
+                }
+                else
+                {
+                    movementTime.Add(timer);
+                    timer = 0;
+                }
+            }
+        }
         /*if (toggle)
         {
             if (CenterCamera == null)
@@ -161,23 +243,102 @@ public class TargetManager : MonoBehaviour
 
     public void ActivateRandomTarget()
     {
-        List<TargetBehaviour> targets = new List<TargetBehaviour>(targetContainer.GetComponentsInChildren<TargetBehaviour>());
+        //List<TargetBehaviour> targets = new List<TargetBehaviour>(targetContainer.GetComponentsInChildren<TargetBehaviour>());
         int randomIndex = Random.Range(0, targets.Count);
-        targets[randomIndex].intendedTarget = true;
         targets[randomIndex].OnTargetSelect();
-        hasTargetActivated = true;
         timer = 0;
+    }
+
+    public void InitialiseTrial()
+    {
+        Reset();
+        UserStudy.instance.LoadCurrentParticipantRecord();
+        UserStudy.instance.LoadCurrentSettings();
+        UserStudy.instance.PrepareStudy();
+        targets[0].OnTargetSelect();
+        
+    }
+    public void EndTrial()
+    {
+        trialStarted = false;
+        trialEnded = true;
+        UserStudy.instance.SaveCurrentParticipantRecord();
+        UserStudy.instance.WriteStudyResult();
+    }
+    public void ProceedTrial()
+    {
+        targets[currentTarget].OnTargetDeselect();
+        if (trialStarted && currentTarget == 0)
+        {
+            EndTrial();
+            return;
+        }
+        if (forward)
+        {
+            currentTarget += 6;
+            forward = false;
+        }
+        else
+        {
+            currentTarget -= 5;
+            forward = true;
+        }
+
+        if (currentTarget == 11)
+        {
+            currentTarget = 0;
+        }
+        
+        targets[currentTarget].OnTargetSelect();
+        targetPositions.Add(targets[currentTarget].transform.position);
     }
 
     private void FixedUpdate()
     {
-        if (!hasTargetActivated)
+        //rawQuaternions.Add(touchTip.transform.rotation);
+        //rawPositions.Add(touchTip.transform.position);
+        
+        
+        
+        /*if (!hasTargetActivated)
         {
             
             ActivateRandomTarget();
                 
+        }*/
+    }
+
+    private void Update()
+    {
+        if (!trialEnded)
+        {
+            if (trialStarted)
+            {
+                timer += Time.deltaTime;
+                cumulativeTime += Time.deltaTime;
+            }
+        }
+
+        if (OVRInput.GetDown(OVRInput.Button.One))
+        {
+            Vector3 camForward = CenterCamera.forward;
+            camForward.y = 0;
+            targetContainer.transform.position = CenterCamera.position + (camForward * defaultDistance);
+        }
+        
+        if (OVRInput.GetDown(OVRInput.Button.Two))
+        {
+            InitialiseTrial();
+        }
+        
+        if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick))
+        {
+            UserStudy.instance.UpdateStatus();
+            UserStudy.instance.statusText.gameObject.SetActive(!UserStudy.instance.statusText.gameObject.activeSelf);
         }
     }
+    
+    
 
     public void ResetTargetContainerPosition()
     {
@@ -207,20 +368,23 @@ public class TargetManager : MonoBehaviour
     /// <param name="prefab">The object it will be intantiated</param>
     /// <param name="location">The center point of the circle</param>
     /// <param name="howMany">The number of parts the circle will be cut</param>
-    /// <param name="radius">
+    /// <param name="amplitude">
     ///     The margin from center, if your center is at (1,1,1) and your radius is 3 
     ///     your final position can be (4,1,1) for example
     /// </param>
     /// <param name="yPosition">The yPostion for the instantiated prefabs</param>
-    public void InstantiateInCircle(GameObject prefab, Vector3 location, int howMany, float radius, float yPosition)
+    private void InstantiateInCircle(GameObject prefab, Vector3 location, int howMany, float size, float amplitude, float yPosition)
     {
-        float angleSection = Mathf.PI * 2f / howMany;
+        float angleSection = -Mathf.PI * 2f / howMany;
         for (int i = 0; i < howMany; i++)
         {
             float angle = i * angleSection;
-            Vector3 newPos = location + new Vector3(0, Mathf.Sin(angle), Mathf.Cos(angle)) * radius;
+            Vector3 newPos = location + new Vector3(0, Mathf.Sin(angle), Mathf.Cos(angle)) * amplitude;
             newPos.y += yPosition;
+            prefab.transform.localScale = new Vector3(size, size, size);
             GameObject target = Instantiate(prefab, newPos, prefab.transform.rotation, targetContainer);
+            target.GetComponent<TargetBehaviour>().targetID = i;
+            targets.Add(target.GetComponent<TargetBehaviour>());
             TransformerUtils.PositionConstraints constraint= new TransformerUtils.PositionConstraints()
             {
                 XAxis = new TransformerUtils.ConstrainedAxis(){ConstrainAxis = true, AxisRange = new TransformerUtils.FloatRange(){Min = newPos.x, Max = newPos.x}},
@@ -229,13 +393,14 @@ public class TargetManager : MonoBehaviour
             };
             target.GetComponent<GrabFreeTransformer>().InjectOptionalPositionConstraints(constraint);
         }
+        targetContainer.transform.Rotate(new Vector3(1,0,0), -90);
+        targetContainer.transform.Rotate(new Vector3(0,0,1), 90);
     }
-    public void InstantiateInCircle(GameObject prefab, Vector3 location, int howMany, float radius)
+
+    public void InstantiateInCircle(int howMany, float size, float amplitude)
     {
-        this.InstantiateInCircle(prefab, location, howMany, radius, location.y);
-    }
-    public void InstantiateInCircle(GameObject prefab, int howMany, float radius)
-    {
-        this.InstantiateInCircle(prefab, this.transform.position, howMany, radius);
+        prefabToInstantiate.SetActive(true);
+        InstantiateInCircle(prefabToInstantiate, targetContainer.position, howMany, size,amplitude, 0);
+        prefabToInstantiate.SetActive(false);
     }
 }
