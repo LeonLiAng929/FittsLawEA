@@ -88,7 +88,7 @@ public class
         using (var writer = new StreamWriter(path, true))
         {
             //writer.WriteLine("currID,currConditionIndex");
-            if (currentConditionIndex == 27)
+            if (currentConditionIndex == 26)
             {
                 currentConditionIndex = 0;
                 writer.WriteLine($"{currentID+1},{currentConditionIndex},{currMode}");
@@ -162,7 +162,7 @@ public class
     public void PrepareStudy()
     {
         currentSetting = testingCombinations[currentSettingIndex];
-        TargetManager.Instance.InstantiateInCircle(11, currentSetting[0], currentSetting[1]);
+        TargetManager.Instance.InstantiateInCircle(11, currentSetting[0], currentSetting[1]/2);
     }
     
 
@@ -218,9 +218,10 @@ public class
                         "SelectionQuaternionW,SuccessfulSelection");
                 }
                 //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
-
+                Debug.Log(movementTime.Count);
                 for (int i = 0; i < movementTime.Count; i++)
                 {
+                    
                     try
                     {
                         writer.WriteLine(

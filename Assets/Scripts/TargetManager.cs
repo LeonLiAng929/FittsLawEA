@@ -203,6 +203,12 @@ public class TargetManager : MonoBehaviour
                     movementTime.Add(timer);
                     timer = 0;
                 }
+
+                if (trialEnded)
+                {
+                    UserStudy.instance.SaveCurrentParticipantRecord();
+                    UserStudy.instance.WriteStudyResult();
+                }
             }
         }
         /*if (toggle)
@@ -260,10 +266,7 @@ public class TargetManager : MonoBehaviour
     }
     public void EndTrial()
     {
-        trialStarted = false;
         trialEnded = true;
-        UserStudy.instance.SaveCurrentParticipantRecord();
-        UserStudy.instance.WriteStudyResult();
     }
     public void ProceedTrial()
     {
