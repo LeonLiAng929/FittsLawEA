@@ -21,21 +21,72 @@ public class TargetBehaviour : MonoBehaviour
         
     }
 
+    private bool WithinBoundary(Vector3 touchTip, Vector3 targetCentrioid, float targetSize)
+    {
+        float distance = Vector3.Distance(touchTip, targetCentrioid);
+        if (distance <= targetSize) 
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name == "touchtip")
         {
-            isSelected = true;
+            if (this.gameObject.name == "missSelectionArea")
+            {
+                if (!TargetManager.Instance.trialEnded)
+                {
+                    TargetManager.Instance.selectionPositions.Add(TargetManager.Instance.touchTip.transform.position);
+
+                    if (WithinBoundary(other.transform.position, TargetManager.Instance
+                            .targets[TargetManager.Instance.currentTarget].transform.position, TargetManager.Instance
+                            .targets[TargetManager.Instance.currentTarget].transform.localScale.x))
+                    {
+                        TargetManager.Instance.successfulSelection.Add(true);
+                    }
+                    else
+                    {
+                        TargetManager.Instance.successfulSelection.Add(false);
+                    }
+
+                    TargetManager.Instance.selectionQuaternions.Add(TargetManager.Instance.touchTip.transform.rotation);
+                    TargetManager.Instance.timestamp.Add(TargetManager.Instance.cumulativeTime);
+                    TargetManager.Instance.ProceedTrial();
+                    if (!TargetManager.Instance.trialStarted)
+                    {
+                        TargetManager.Instance.trialStarted = true;
+                    }
+                    else
+                    {
+                        TargetManager.Instance.movementTime.Add(TargetManager.Instance.timer);
+                        TargetManager.Instance.timer = 0;
+                    }
+
+                    if (TargetManager.Instance.trialEnded)
+                    {
+                        UserStudy.instance.SaveCurrentParticipantRecord();
+                        UserStudy.instance.WriteStudyResult();
+                    }
+
+                }
+            }
         }
     }
-    
-    private void OnTriggerExit(Collider other)
+
+    /*private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.name == "touchtip")
         {
             isSelected = false;
+
         }
-    }
+    }*/
 
     public void OnTargetSelect()
     {

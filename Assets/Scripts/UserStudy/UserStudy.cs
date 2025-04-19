@@ -46,7 +46,6 @@ public class
         UpdateStatus();
         //currentSettingIndex = userStudySettings[currentID][currentConditionIndex];
         
-        
         //Invoke(nameof(SetTargetSpeedPerHourToNine),3f);
         //SetTargetSpeedPerHourToNine();
         //Invoke(nameof(BeginStudy), 3f);
@@ -205,7 +204,7 @@ public class
             string fileName = currentID.ToString() + ".csv";
 
             string path = Path.Combine(Application.persistentDataPath, fileName);
-
+            
             FileInfo fileInfo = new FileInfo(path);
             using (var writer = new StreamWriter(path, true))
             {
@@ -218,7 +217,7 @@ public class
                         "SelectionQuaternionW,SuccessfulSelection");
                 }
                 //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
-                Debug.Log(movementTime.Count);
+                //Debug.Log(movementTime.Count);
                 for (int i = 0; i < movementTime.Count; i++)
                 {
                     

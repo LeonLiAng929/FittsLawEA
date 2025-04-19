@@ -54,6 +54,8 @@ public class TargetManager : MonoBehaviour
     public bool trialEnded = false;
     public float timer = 0;
     public GameObject touchTip;
+    public bool targetTouched = false;
+    public GameObject misstouchArea;
     
     #region ForUserStudy
     /*public List<float> speed = new List<float>();
@@ -114,7 +116,8 @@ public class TargetManager : MonoBehaviour
 
         foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
         {
-            Destroy(target.gameObject);
+            if(target.name!="missSelectionArea")
+                Destroy(target.gameObject);
         }
     }
     
@@ -185,9 +188,9 @@ public class TargetManager : MonoBehaviour
 
     protected virtual void LateUpdate()
     {
-        if (!trialEnded)
+        /*if (!trialEnded)
         {
-            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
+            if (targetTouched)
             {
                 selectionPositions.Add(touchTip.transform.position);
                 successfulSelection.Add(targets[currentTarget].isSelected);
@@ -210,7 +213,11 @@ public class TargetManager : MonoBehaviour
                     UserStudy.instance.WriteStudyResult();
                 }
             }
-        }
+        }*/
+        
+        
+        
+        
         /*if (toggle)
         {
             if (CenterCamera == null)
@@ -404,6 +411,8 @@ public class TargetManager : MonoBehaviour
     {
         prefabToInstantiate.SetActive(true);
         InstantiateInCircle(prefabToInstantiate, targetContainer.position, howMany, size,amplitude, 0);
+        misstouchArea.transform.localScale = new Vector3(size+2, 1, 1);
+        misstouchArea.transform.localPosition = new Vector3(-(size+2)/2+size/2, 0, 0);
         prefabToInstantiate.SetActive(false);
     }
 }
