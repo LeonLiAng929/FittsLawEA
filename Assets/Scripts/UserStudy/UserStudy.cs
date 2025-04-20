@@ -8,33 +8,41 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class 
+public class
     UserStudy : MonoBehaviour
 {
     public static UserStudy instance;
     public int currentID;
     public float[] currentSetting;
     public Dictionary<int, List<int>> userStudySettings;
-    [FormerlySerializedAs("currentSetting")] public int currentSettingIndex;
+
+    [FormerlySerializedAs("currentSetting")]
+    public int currentSettingIndex;
+
     public bool trainingStart = false;
     public int currentConditionIndex; // 0 - 27, if reaches 27, increment currentID and reset currentConditionIndex to 0
     public TMP_Text statusText;
-    public List<float[]> testingCombinations; // for each float[], float[0] is the size, float[1] is the distance, float[2] is the speed
+
+    public List<float[]>
+        testingCombinations; // for each float[], float[0] is the size, float[1] is the distance, float[2] is the speed
+
     //public bool training = true;
     public Mode currMode = Mode.Regular;
+
     public enum Mode
     {
         Regular,
         Training
     }
+
     //[SerializeField]
     //public List<UserStudyButtons> userStudyButtons;
     private void Awake()
     {
         instance = this;
     }
-    
-    
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,8 +53,8 @@ public class
         LoadCurrentSettings();
         UpdateStatus();
         //currentSettingIndex = userStudySettings[currentID][currentConditionIndex];
-        
-        
+
+
         //Invoke(nameof(SetTargetSpeedPerHourToNine),3f);
         //SetTargetSpeedPerHourToNine();
         //Invoke(nameof(BeginStudy), 3f);
@@ -67,18 +75,19 @@ public class
         using (var reader = new System.IO.StreamReader(path))
         {
             reader.ReadLine();
-            string[] line = new string[]{};
+            string[] line = new string[] { };
             while (!reader.EndOfStream)
             {
                 line = reader.ReadLine().Split(',');
             }
+
             currentID = int.Parse(line[0]);
             currentConditionIndex = int.Parse(line[1]);
             Mode.TryParse(line[2], out currMode);
         }
     }
-    
-    
+
+
     public void SaveCurrentParticipantRecord()
     {
         string fname = "ParticipantRecord.csv";
@@ -91,14 +100,15 @@ public class
             if (currentConditionIndex == 26)
             {
                 currentConditionIndex = 0;
-                writer.WriteLine($"{currentID+1},{currentConditionIndex},{currMode}");
+                writer.WriteLine($"{currentID + 1},{currentConditionIndex},{currMode}");
             }
             else
             {
-                writer.WriteLine($"{currentID},{currentConditionIndex+1},{currMode}");
+                writer.WriteLine($"{currentID},{currentConditionIndex + 1},{currMode}");
             }
         }
     }
+
     /// <summary>
     /// Load and parse the study settings from a csv file. The first line of the csv file is the header. Its format is:
     /// ID, Condition1, Condition2, Condition3, Condition4. The contents should be parsed into the dictionary userStudySettings.
@@ -109,7 +119,7 @@ public class
         userStudySettings = new Dictionary<int, List<int>>();
         string fname = "UserStudySchedule.csv";
         string path = Path.Combine(Application.persistentDataPath, fname);
-        
+
         using (var reader = new System.IO.StreamReader(path))
         {
             reader.ReadLine(); // skip the header line
@@ -123,10 +133,11 @@ public class
                 {
                     conditions.Add(int.Parse(values[i]));
                 }
+
                 userStudySettings.Add(id, conditions);
-                
+
             }
-        } 
+        }
     }
 
     public void LoadTestingCombinations()
@@ -147,29 +158,32 @@ public class
                 {
                     settings[i] = float.Parse(values[i]);
                 }
+
                 testingCombinations.Add(settings);
-                
+
             }
         }
     }
-    
+
     public void UpdateStatus()
     {
         var currentSetting = testingCombinations[currentSettingIndex];
-        statusText.text = string.Format("Current ID: {0}, Size: {1}, Distance: {2}, Speed: {3}, Mode: {4}", currentID, currentSetting[0], currentSetting[1], currentSetting[2],currMode.ToString());
+        statusText.text = string.Format("Current ID: {0}, Size: {1}, Distance: {2}, Speed: {3}, Mode: {4}", currentID,
+            currentSetting[0], currentSetting[1], currentSetting[2], currMode.ToString());
     }
-    
+
     public void PrepareStudy()
     {
         currentSetting = testingCombinations[currentSettingIndex];
-        TargetManager.Instance.InstantiateInCircle(11, currentSetting[0], currentSetting[1]/2);
+        TargetManager.Instance.InstantiateInCircle(11, currentSetting[0], currentSetting[1] / 2);
     }
-    
+
 
     private void TrainingStart()
     {
         trainingStart = true;
     }
+
     public void LoadCurrentSettings()
     {
         /*List<AnchorType> conditions = userStudySettings[currentID];
@@ -177,7 +191,7 @@ public class
         {
             userStudyButtons[i].anchorType = conditions[i];
         }*/
-        currentSettingIndex = userStudySettings[currentID][currentConditionIndex]-1;
+        currentSettingIndex = userStudySettings[currentID][currentConditionIndex] - 1;
         UpdateStatus();
     }
 
@@ -212,23 +226,61 @@ public class
                 if (fileInfo.Length == 0)
                 {
                     writer.WriteLine(
-                        "UID,Size,Distance,Speed,IndexOfDifficulty,Timestamp,MovementTime,TargetPositionX,TargetPositionY,TargetPositionZ," +
+                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,MovementTime,TargetPositionX,TargetPositionY,TargetPositionZ," +
                         "SelectionPositionX,SelectionPositionY,SelectionPositionZ," +
                         "SelectionQuaternionX,SelectionQuaternionY,SelectionQuaternionZ," +
                         "SelectionQuaternionW,SuccessfulSelection");
                 }
+
                 //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
-                Debug.Log(movementTime.Count);
+                //Debug.Log(movementTime.Count);
                 for (int i = 0; i < movementTime.Count; i++)
                 {
-                    
+
                     try
                     {
                         writer.WriteLine(
-                            $"{currentID.ToString()},{size},{distance},{speed},{indexOfDifficulty},{timestamp[i]},{movementTime[i]},{targetPositions[i].x},{targetPositions[i].y},{targetPositions[i].z}," +
+                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{timestamp[i]},{movementTime[i]},{targetPositions[i].x},{targetPositions[i].y},{targetPositions[i].z}," +
                             $"{selectionPositions[i].x},{selectionPositions[i].y},{selectionPositions[i].z}," +
                             $"{selectionQuaternions[i].x},{selectionQuaternions[i].y},{selectionQuaternions[i].z}," +
                             $"{selectionQuaternions[i].w},{successfulSelection[i]}");
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+
+                    }
+
+                }
+            }
+
+            List<float> rawTimestamp = TargetManager.Instance.rawTimestamp;
+            List<Vector3> rawPositions = TargetManager.Instance.rawPositions;
+            List<Quaternion> rawQuaternions = TargetManager.Instance.rawQuaternions;
+            List<Vector3> currentTargetPos = TargetManager.Instance.currentTargetPos;
+            List<int> currentTargetIndex = TargetManager.Instance.currentTargetIndex;
+
+            fileName = currentID.ToString() + "_raw" + ".csv";
+
+            path = Path.Combine(Application.persistentDataPath, fileName);
+
+            fileInfo = new FileInfo(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (fileInfo.Length == 0)
+                {
+                    writer.WriteLine(
+                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,currentTargetIndex, currentTargetPositionX, currentTargetPositionY, currentTargetPositionZ, rawPositionX, rawPositionY, rawPositionZ, rawQuaternionX, rawQuaternionY, rawQuaternionZ, rawQuaternionW");
+                }
+
+                //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
+                //Debug.Log(movementTime.Count);
+                for (int i = 0; i < rawTimestamp.Count; i++)
+                {
+
+                    try
+                    {
+                        writer.WriteLine(
+                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{rawTimestamp[i]},{currentTargetIndex[i]},{currentTargetPos[i].x},{currentTargetPos[i].y},{currentTargetPos[i].z},{rawPositions[i].x},{rawPositions[i].y},{rawPositions[i].z},{rawQuaternions[i].x},{rawQuaternions[i].y},{rawQuaternions[i].z},{rawQuaternions[i].w}");
                     }
                     catch (ArgumentOutOfRangeException)
                     {
