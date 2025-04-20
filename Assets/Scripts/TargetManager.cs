@@ -71,6 +71,9 @@ public class TargetManager : MonoBehaviour
     public List<Quaternion> rawQuaternions = new List<Quaternion>();
     public List<Vector3> rawPositions = new List<Vector3>();
     public float cumulativeTime = 0;
+    public List<Vector3> currentTargetPos = new List<Vector3>();
+    public List<int> currentTargetIndex = new List<int>();
+    public List<float> rawTimestamp = new List<float>();
     #endregion ForUserStudy
 
     public GameObject finishText;
@@ -103,6 +106,7 @@ public class TargetManager : MonoBehaviour
         trialStarted = false;
         trialEnded = false;
         timer = 0;
+        cumulativeTime = 0;
         /*speed = new List<float>();
         distance = new List<float>();
         size = new List<float>();
@@ -113,6 +117,11 @@ public class TargetManager : MonoBehaviour
         successfulSelection = new List<bool>();
         rawQuaternions = new List<Quaternion>();
         rawPositions = new List<Vector3>();
+        currentTargetPos = new List<Vector3>();
+        currentTargetIndex = new List<int>();
+        rawTimestamp = new List<float>();
+        selectionQuaternions = new List<Quaternion>();
+      
 
         foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
         {
@@ -305,29 +314,38 @@ public class TargetManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //rawQuaternions.Add(touchTip.transform.rotation);
-        //rawPositions.Add(touchTip.transform.position);
-        
-        
-        
+        if (trialStarted)
+        {
+            rawQuaternions.Add(touchTip.transform.rotation);
+            rawPositions.Add(touchTip.transform.position);
+            currentTargetPos.Add(targets[currentTarget].transform.position);
+            currentTargetIndex.Add(currentTarget);
+            rawTimestamp.Add(cumulativeTime);
+            
+        }
+
+
         /*if (!hasTargetActivated)
         {
-            
+
             ActivateRandomTarget();
-                
+
         }*/
     }
 
     private void Update()
     {
+      
         if (!trialEnded)
         {
+            
             if (trialStarted)
             {
                 timer += Time.deltaTime;
                 cumulativeTime += Time.deltaTime;
             }
         }
+
 
         if (OVRInput.GetDown(OVRInput.Button.One))
         {

@@ -211,7 +211,7 @@ public class
                 if (fileInfo.Length == 0)
                 {
                     writer.WriteLine(
-                        "UID,Size,Distance,Speed,IndexOfDifficulty,Timestamp,MovementTime,TargetPositionX,TargetPositionY,TargetPositionZ," +
+                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,MovementTime,TargetPositionX,TargetPositionY,TargetPositionZ," +
                         "SelectionPositionX,SelectionPositionY,SelectionPositionZ," +
                         "SelectionQuaternionX,SelectionQuaternionY,SelectionQuaternionZ," +
                         "SelectionQuaternionW,SuccessfulSelection");
@@ -224,10 +224,47 @@ public class
                     try
                     {
                         writer.WriteLine(
-                            $"{currentID.ToString()},{size},{distance},{speed},{indexOfDifficulty},{timestamp[i]},{movementTime[i]},{targetPositions[i].x},{targetPositions[i].y},{targetPositions[i].z}," +
+                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{timestamp[i]},{movementTime[i]},{targetPositions[i].x},{targetPositions[i].y},{targetPositions[i].z}," +
                             $"{selectionPositions[i].x},{selectionPositions[i].y},{selectionPositions[i].z}," +
                             $"{selectionQuaternions[i].x},{selectionQuaternions[i].y},{selectionQuaternions[i].z}," +
                             $"{selectionQuaternions[i].w},{successfulSelection[i]}");
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+
+                    }
+
+                }
+            }
+            
+            // write raw data
+            List<float> rawTimestamp = TargetManager.Instance.rawTimestamp;
+            List<Vector3> rawPositions = TargetManager.Instance.rawPositions;
+            List<Quaternion> rawQuaternions = TargetManager.Instance.rawQuaternions;
+            List<Vector3> currentTargetPos = TargetManager.Instance.currentTargetPos;
+            List<int> currentTargetIndex = TargetManager.Instance.currentTargetIndex;
+            
+            fileName = currentID.ToString() +"_raw"+ ".csv";
+
+            path = Path.Combine(Application.persistentDataPath, fileName);
+            
+            fileInfo = new FileInfo(path);
+            using (var writer = new StreamWriter(path, true))
+            {
+                if (fileInfo.Length == 0)
+                {
+                    writer.WriteLine(
+                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,currentTargetIndex, currentTargetPositionX, currentTargetPositionY, currentTargetPositionZ, rawPositionX, rawPositionY, rawPositionZ, rawQuaternionX, rawQuaternionY, rawQuaternionZ, rawQuaternionW");
+                }
+                //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
+                //Debug.Log(movementTime.Count);
+                for (int i = 0; i < rawTimestamp.Count; i++)
+                {
+                    
+                    try
+                    {
+                        writer.WriteLine(
+                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{rawTimestamp[i]},{currentTargetIndex[i]},{currentTargetPos[i].x},{currentTargetPos[i].y},{currentTargetPos[i].z},{rawPositions[i].x},{rawPositions[i].y},{rawPositions[i].z},{rawQuaternions[i].x},{rawQuaternions[i].y},{rawQuaternions[i].z},{rawQuaternions[i].w}");
                     }
                     catch (ArgumentOutOfRangeException)
                     {
