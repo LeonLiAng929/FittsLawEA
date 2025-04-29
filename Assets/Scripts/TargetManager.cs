@@ -54,6 +54,7 @@ public class TargetManager : MonoBehaviour
     public bool trialEnded = false;
     public float timer = 0;
     public GameObject touchTip;
+    public GameObject FilterControl;
     
     #region ForUserStudy
     /*public List<float> speed = new List<float>();
@@ -332,6 +333,7 @@ public class TargetManager : MonoBehaviour
             Vector3 camForward = CenterCamera.forward;
             camForward.y = 0;
             targetContainer.transform.position = CenterCamera.position + (camForward * defaultDistance);
+            FilterControl.transform.position = CenterCamera.position + (camForward * defaultDistance)*0.8f;
         }
         
         if (OVRInput.GetDown(OVRInput.Button.Two))
@@ -343,6 +345,11 @@ public class TargetManager : MonoBehaviour
         {
             UserStudy.instance.UpdateStatus();
             UserStudy.instance.statusText.gameObject.SetActive(!UserStudy.instance.statusText.gameObject.activeSelf);
+        }
+        
+        if (OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick))
+        {
+            FilterControl.SetActive(!FilterControl.activeSelf);
         }
     }
     
