@@ -436,6 +436,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 4
 --- !u!114 &4966394
 MonoBehaviour:
@@ -933,6 +934,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 0
 --- !u!114 &11502901
 MonoBehaviour:
@@ -3752,6 +3754,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 1
 --- !u!114 &125832383
 MonoBehaviour:
@@ -5363,6 +5366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 6
 --- !u!114 &225921962
 MonoBehaviour:
@@ -7569,6 +7573,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 2
 --- !u!114 &358869583
 MonoBehaviour:
@@ -8311,6 +8316,9 @@ MonoBehaviour:
   rawQuaternions: []
   rawPositions: []
   cumulativeTime: 0
+  currentTargetPos: []
+  currentTargetIndex: 
+  rawTimestamp: []
   finishText: {fileID: 0}
   prefabToInstantiate: {fileID: 2069762350}
 --- !u!4 &401990549
@@ -11504,6 +11512,114 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2021394616}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &535337976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 535337977}
+  - component: {fileID: 535337980}
+  - component: {fileID: 535337979}
+  - component: {fileID: 535337978}
+  m_Layer: 0
+  m_Name: Outline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &535337977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535337976}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.95, y: 0.95, z: 0.95}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2069762357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &535337978
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535337976}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &535337979
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535337976}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 00aa88211d2af4e4fab0be42db6d206c, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &535337980
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535337976}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &540526711
 GameObject:
   m_ObjectHideFlags: 0
@@ -14053,6 +14169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 3
 --- !u!114 &662711504
 MonoBehaviour:
@@ -14421,6 +14538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 3
 --- !u!114 &678176085
 MonoBehaviour:
@@ -19028,6 +19146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 0
 --- !u!114 &899755692
 MonoBehaviour:
@@ -19352,6 +19471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 5
 --- !u!114 &909904553
 MonoBehaviour:
@@ -23690,6 +23810,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 5
 --- !u!114 &1219580047
 MonoBehaviour:
@@ -26252,6 +26373,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 2
 --- !u!114 &1358723241
 MonoBehaviour:
@@ -28007,6 +28129,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 6
 --- !u!114 &1454013676
 MonoBehaviour:
@@ -28383,6 +28506,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 1
 --- !u!114 &1461734704
 MonoBehaviour:
@@ -30396,6 +30520,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 4
 --- !u!114 &1584312906
 MonoBehaviour:
@@ -31358,6 +31483,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 7
 --- !u!114 &1622375254
 MonoBehaviour:
@@ -34699,6 +34825,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 8
 --- !u!114 &1837715966
 MonoBehaviour:
@@ -35349,6 +35476,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 8
 --- !u!114 &1854131754
 MonoBehaviour:
@@ -39118,6 +39246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 0}
   Anchor: 7
 --- !u!114 &2044603338
 MonoBehaviour:
@@ -39934,6 +40063,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1297703199}
+  - {fileID: 535337977}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2069762358
@@ -40049,6 +40179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetID: 0
   isSelected: 0
+  outline: {fileID: 535337976}
   Anchor: 7
 --- !u!1 &2072328418
 GameObject:

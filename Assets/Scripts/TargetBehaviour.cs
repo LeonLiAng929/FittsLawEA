@@ -5,6 +5,7 @@ public class TargetBehaviour : MonoBehaviour
 {
     public int targetID;
     public bool isSelected = false;
+    public GameObject outline;
     /// <summary> The anchor. </summary>
     [Header("Window Settings")]
     [SerializeField, Tooltip("What part of the view port to anchor the object to.")]
@@ -26,7 +27,10 @@ public class TargetBehaviour : MonoBehaviour
         if (other.gameObject.name == "touchtip")
         {
             isSelected = true;
+            
+            outline.SetActive(true);
         }
+        
     }
     
     private void OnTriggerExit(Collider other)
@@ -34,6 +38,7 @@ public class TargetBehaviour : MonoBehaviour
         if (other.gameObject.name == "touchtip")
         {
             isSelected = false;
+            outline.SetActive(false);
         }
     }
 

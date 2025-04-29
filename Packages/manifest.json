@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cakeslice.outline-effect": "2.1.1",
     "com.meta.xr.sdk.all": "72.0.0",
     "com.meta.xr.sdk.interaction.ovr": "72.0.0",
     "com.unity.collab-proxy": "2.6.0",
@@ -7,6 +8,7 @@
     "com.unity.inputsystem": "1.12.0",
     "com.unity.multiplayer.center": "1.0.0",
     "com.unity.timeline": "1.8.7",
+    "com.unity.toonshader": "0.11.0-preview",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.5",
     "com.unity.xr.oculus": "4.5.0",
@@ -42,5 +44,15 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.cakeslice.outline-effect"
+      ],
+      "overrideBuiltIns": false
+    }
+  ]
 }
