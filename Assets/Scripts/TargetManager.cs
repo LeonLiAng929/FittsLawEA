@@ -12,6 +12,7 @@ using Random = UnityEngine.Random;
 public class TargetManager : MonoBehaviour
 {
     public bool toggle=true;
+    public bool ergonomic = false;
     public static TargetManager Instance;
  
     /// <summary> The follow speed. </summary>
@@ -81,6 +82,10 @@ public class TargetManager : MonoBehaviour
         Instance = this;
     }
 
+    public void SetErgonomic()
+    {
+        ergonomic = !ergonomic;
+    }
     /// <summary> Starts this object. </summary>
     protected void Start()
     {
@@ -119,6 +124,7 @@ public class TargetManager : MonoBehaviour
         currentTargetPos = new List<Vector3>();
         currentTargetIndex = new List<int>();
         rawTimestamp = new List<float>();
+        timestamp = new List<float>();
         selectionQuaternions = new List<Quaternion>();
         foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
         {
@@ -331,9 +337,13 @@ public class TargetManager : MonoBehaviour
         if (OVRInput.GetDown(OVRInput.Button.One))
         {
             Vector3 camForward = CenterCamera.forward;
-            camForward.y = 0;
+            
+            //camForward.y = 0;
             targetContainer.transform.position = CenterCamera.position + (camForward * defaultDistance);
             FilterControl.transform.position = CenterCamera.position + (camForward * defaultDistance)*0.8f;
+            if (ergonomic)
+                targetContainer.LookAt(CenterCamera);
+                
         }
         
         if (OVRInput.GetDown(OVRInput.Button.Two))
@@ -391,15 +401,27 @@ public class TargetManager : MonoBehaviour
     private void InstantiateInCircle(GameObject prefab, Vector3 location, int howMany, float size, float amplitude, float yPosition)
     {
         float angleSection = -Mathf.PI * 2f / howMany;
+        
         for (int i = 0; i < howMany; i++)
         {
             float angle = i * angleSection;
-            Vector3 newPos = location + new Vector3(0, Mathf.Sin(angle), Mathf.Cos(angle)) * amplitude;
-            newPos.y += yPosition;
+            //Vector3 newPos = location + new Vector3(0, Mathf.Sin(angle), Mathf.Cos(angle)) * amplitude;
+            Vector3 circlePoint = new Vector3(
+                Mathf.Sin(angle) * amplitude,
+                Mathf.Cos(angle) * amplitude,
+                0f
+            );
+
+            // apply center + optional Y offset
+            Vector3 newPos = circlePoint;
+            //newPos.y += yPosition;
             prefab.transform.localScale = new Vector3(size, size, size);
-            GameObject target = Instantiate(prefab, newPos, prefab.transform.rotation, targetContainer);
+            GameObject target = Instantiate(prefab, targetContainer);
+            target.transform.localPosition = newPos;
             target.GetComponent<TargetBehaviour>().targetID = i;
             targets.Add(target.GetComponent<TargetBehaviour>());
+            
+            
             TransformerUtils.PositionConstraints constraint= new TransformerUtils.PositionConstraints()
             {
                 XAxis = new TransformerUtils.ConstrainedAxis(){ConstrainAxis = true, AxisRange = new TransformerUtils.FloatRange(){Min = newPos.x, Max = newPos.x}},
@@ -408,8 +430,8 @@ public class TargetManager : MonoBehaviour
             };
             target.GetComponent<GrabFreeTransformer>().InjectOptionalPositionConstraints(constraint);
         }
-        targetContainer.transform.Rotate(new Vector3(1,0,0), -90);
-        targetContainer.transform.Rotate(new Vector3(0,0,1), 90);
+        //targetContainer.transform.Rotate(new Vector3(1,0,0), -90);
+        //targetContainer.transform.Rotate(new Vector3(0,0,1), 90);
     }
 
     public void InstantiateInCircle(int howMany, float size, float amplitude)

@@ -117,7 +117,7 @@ public class
     public void LoadStudySettings()
     {
         userStudySettings = new Dictionary<int, List<int>>();
-        string fname = "UserStudySchedule.csv";
+        string fname = "UserStudySchedule2Balanced.csv";
         string path = Path.Combine(Application.persistentDataPath, fname);
 
         using (var reader = new System.IO.StreamReader(path))
