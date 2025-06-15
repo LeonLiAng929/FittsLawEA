@@ -55,6 +55,7 @@ public class TargetManager : MonoBehaviour
     public bool trialEnded = false;
     public float timer = 0;
     public GameObject touchTip;
+    public Transform indexDistalTip;
     public GameObject FilterControl;
     
     #region ForUserStudy
@@ -77,6 +78,7 @@ public class TargetManager : MonoBehaviour
     #endregion ForUserStudy
 
     public GameObject finishText;
+    public AudioSource finishAudio;
     private void Awake()
     {
         Instance = this;
@@ -104,6 +106,7 @@ public class TargetManager : MonoBehaviour
 
     public void Reset()
     {
+        finishText.SetActive(false);
         targets = new List<TargetBehaviour>();
         currentTarget = 0;
         forward = true;
@@ -205,7 +208,7 @@ public class TargetManager : MonoBehaviour
             {
                 selectionPositions.Add(touchTip.transform.position);
                 successfulSelection.Add(targets[currentTarget].isSelected);
-                selectionQuaternions.Add(touchTip.transform.rotation);
+                selectionQuaternions.Add(indexDistalTip.rotation);
                 timestamp.Add(cumulativeTime);
                 ProceedTrial();
                 if (!trialStarted)
@@ -220,6 +223,7 @@ public class TargetManager : MonoBehaviour
 
                 if (trialEnded)
                 {
+                    finishAudio.Play();
                     UserStudy.instance.SaveCurrentParticipantRecord();
                     UserStudy.instance.WriteStudyResult();
                 }
@@ -314,7 +318,7 @@ public class TargetManager : MonoBehaviour
     {
         if (trialStarted)
         {
-            rawQuaternions.Add(touchTip.transform.rotation);
+            rawQuaternions.Add(indexDistalTip.rotation);
             rawPositions.Add(touchTip.transform.position);
             currentTargetPos.Add(targets[currentTarget].transform.position);
             currentTargetIndex.Add(currentTarget);
@@ -337,16 +341,17 @@ public class TargetManager : MonoBehaviour
         if (OVRInput.GetDown(OVRInput.Button.One))
         {
             Vector3 camForward = CenterCamera.forward;
-            
+            Vector3 midpoint = Calibration.Instance.midPoint;
+            midpoint.y = CenterCamera.position.y;
             //camForward.y = 0;
-            targetContainer.transform.position = CenterCamera.position + (camForward * defaultDistance);
+            targetContainer.transform.position = midpoint- new Vector3(0,.3f,0); // keep at chest level
             FilterControl.transform.position = CenterCamera.position + (camForward * defaultDistance)*0.8f;
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
                 
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.Two))
+        if (OVRInput.GetDown(OVRInput.Button.Three))
         {
             InitialiseTrial();
         }

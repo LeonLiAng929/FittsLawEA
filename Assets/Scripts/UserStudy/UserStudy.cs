@@ -5,6 +5,7 @@ using System.IO;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -53,8 +54,7 @@ public class
         LoadCurrentSettings();
         UpdateStatus();
         //currentSettingIndex = userStudySettings[currentID][currentConditionIndex];
-
-
+        
         //Invoke(nameof(SetTargetSpeedPerHourToNine),3f);
         //SetTargetSpeedPerHourToNine();
         //Invoke(nameof(BeginStudy), 3f);
@@ -84,6 +84,15 @@ public class
             currentID = int.Parse(line[0]);
             currentConditionIndex = int.Parse(line[1]);
             Mode.TryParse(line[2], out currMode);
+            if (line.Length > 3)
+            {
+                Calibration.Instance.midPoint = new Vector3(float.Parse(line[3]), float.Parse(line[4]),
+                    float.Parse(line[5]));
+            }
+            else
+            {
+                Calibration.Instance.midPoint = Vector3.zero;
+            }
         }
     }
 
@@ -100,11 +109,16 @@ public class
             if (currentConditionIndex == 26)
             {
                 currentConditionIndex = 0;
-                writer.WriteLine($"{currentID + 1},{currentConditionIndex},{currMode}");
+                TargetManager.Instance.ShowFinishText();
+                writer.WriteLine($"{currentID + 1},{currentConditionIndex},{currMode},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
             }
             else
             {
-                writer.WriteLine($"{currentID},{currentConditionIndex + 1},{currMode}");
+                writer.WriteLine($"{currentID},{currentConditionIndex + 1},{currMode},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
+                if ((currentConditionIndex +1) % 9 == 0)
+                { 
+                    TargetManager.Instance.ShowFinishText();
+                }
             }
         }
     }
