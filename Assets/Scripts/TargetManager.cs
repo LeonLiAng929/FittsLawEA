@@ -204,7 +204,7 @@ public class TargetManager : MonoBehaviour
     {
         if (!trialEnded)
         {
-            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
+            if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
             {
                 selectionPositions.Add(touchTip.transform.position);
                 successfulSelection.Add(targets[currentTarget].isSelected);
@@ -338,7 +338,7 @@ public class TargetManager : MonoBehaviour
             }
         }
 
-        if (OVRInput.GetDown(OVRInput.Button.One))
+        if (OVRInput.GetDown(OVRInput.RawButton.A))
         {
             Vector3 camForward = CenterCamera.forward;
             Vector3 midpoint = Calibration.Instance.midPoint;
@@ -351,18 +351,18 @@ public class TargetManager : MonoBehaviour
                 
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.Three))
+        if (OVRInput.GetDown(OVRInput.RawButton.X))
         {
             InitialiseTrial();
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstick))
+        if (OVRInput.GetDown(OVRInput.RawButton.LThumbstickDown))
         {
             UserStudy.instance.UpdateStatus();
             UserStudy.instance.statusText.gameObject.SetActive(!UserStudy.instance.statusText.gameObject.activeSelf);
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.PrimaryThumbstick))
+        if (OVRInput.GetDown(OVRInput.RawButton.RThumbstickDown))
         {
             FilterControl.SetActive(!FilterControl.activeSelf);
         }

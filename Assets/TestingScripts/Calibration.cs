@@ -48,7 +48,7 @@ public class Calibration : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (OVRInput.GetDown(OVRInput.Button.Two))
+        if (OVRInput.GetDown(OVRInput.RawButton.B))
         {
             toggle = !toggle;
             caliContainer.SetActive(toggle);
@@ -56,7 +56,7 @@ public class Calibration : MonoBehaviour
 
         if (toggle)
         {
-            if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger))
+            if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
             {
                 SwitchCalibrationPoints();
             }
