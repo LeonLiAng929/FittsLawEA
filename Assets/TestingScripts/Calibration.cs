@@ -56,11 +56,12 @@ public class Calibration : MonoBehaviour
 
         if (toggle)
         {
-            if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
+            if (OVRInput.GetDown(OVRInput.Button.SecondaryIndexTrigger))
             {
                 SwitchCalibrationPoints();
             }
             Vector2 thumbstickR = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+           
             if (thumbstickR != Vector2.zero)
             {
                 Vector3 translation = new Vector3();
@@ -86,11 +87,6 @@ public class Calibration : MonoBehaviour
                     }
                 }
                 currPoint.transform.position += translation*.1f;
-                //round up to 2 decimal places
-                currPoint.transform.position = new Vector3(
-                    Mathf.Round(currPoint.transform.position.x * 100f) / 100f,
-                    Mathf.Round(currPoint.transform.position.y * 100f) / 100f,
-                    Mathf.Round(currPoint.transform.position.z * 100f) / 100f);
             }
             
             Vector2 thumbstickL = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
@@ -106,11 +102,6 @@ public class Calibration : MonoBehaviour
                     translation = new Vector3(0, -1, 0) * Time.deltaTime;
                 }
                 currPoint.transform.position += translation*.1f;
-                //round up to 2 decimal places
-                currPoint.transform.position = new Vector3(
-                    Mathf.Round(currPoint.transform.position.x * 100f) / 100f,
-                    Mathf.Round(currPoint.transform.position.y * 100f) / 100f,
-                    Mathf.Round(currPoint.transform.position.z * 100f) / 100f);
             }
             UpdateMidPoint();
         }

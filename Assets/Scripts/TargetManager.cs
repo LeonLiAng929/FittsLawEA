@@ -344,7 +344,7 @@ public class TargetManager : MonoBehaviour
             Vector3 midpoint = Calibration.Instance.midPoint;
             midpoint.y = CenterCamera.position.y;
             //camForward.y = 0;
-            targetContainer.transform.position = midpoint- new Vector3(0,.3f,0); // keep at chest level
+            targetContainer.transform.position = midpoint- new Vector3(0,.25f,0); // keep at chest level
             FilterControl.transform.position = CenterCamera.position + (camForward * defaultDistance)*0.8f;
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
