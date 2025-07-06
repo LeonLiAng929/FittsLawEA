@@ -37,7 +37,7 @@ public class FilteringOneEuro : MonoBehaviour
 		positionFilter = new OneEuroFilter<Vector3>(filterFrequency);
 	}
 
-	void Update () 
+	void LateUpdate () 
 	{
 		if(filterOn)
 		{
