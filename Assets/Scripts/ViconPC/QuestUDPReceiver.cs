@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using TMPro;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class QuestUDPReceiver : MonoBehaviour
@@ -13,15 +15,14 @@ public class QuestUDPReceiver : MonoBehaviour
     public int listenPort = 51002;
 
     [Header("Target to Drive")]
-    [Tooltip("Assign the object you want moved/rotated")]
-    public Transform targetTransform;
+    public Transform fingertipAnchor;
 
     [Header("Alignment Offsets (auto-updated)")]
     [Tooltip("Position offset to align Vicon → Unity")]
     public Vector3 positionOffset;
     [Tooltip("Rotation offset to align Vicon → Unity")]
     public Quaternion rotationOffset = Quaternion.identity;
-
+    public float calibrationDistanceError = 0;
     public SwitchTrackingMethod tracking;
     // Internals
     private UdpClient   udpClient;
@@ -36,6 +37,12 @@ public class QuestUDPReceiver : MonoBehaviour
     private Quaternion  lastViconRot;
 
     public TMP_Text log;
+    public List<Vector3> sourcePoints = new List<Vector3>();
+    public List<Vector3> targetPoints = new List<Vector3>();
+    public int calibrationPointIndex;
+    [SerializeField]
+    public Matrix4x4 alignmentMatrix; 
+    private bool calibrationVicon = false;
     void Start()
     {
         // Start UDP listener
@@ -44,6 +51,7 @@ public class QuestUDPReceiver : MonoBehaviour
         receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
         receiveThread.Start();
         Debug.Log($"[Quest Receiver] Listening on port {listenPort}");
+        log.text = $"[Quest Receiver] Listening on port {listenPort}";
     }
 
     void ReceiveLoop()
@@ -67,10 +75,30 @@ public class QuestUDPReceiver : MonoBehaviour
 
     void Update()
     {
-        if (OVRInput.GetDown(OVRInput.RawButton.B))
+        if (OVRInput.GetDown(OVRInput.RawButton.Y))
         {
-            CalibrateOffset();
+            calibrationVicon = !calibrationVicon;
+            if (!calibrationVicon)
+            {
+                    sourcePoints.Clear();
+                    targetPoints.Clear();
+                    calibrationPointIndex = 0;
+            }
+            else
+            {
+                log.text = "Calibration Start..." + $" [Quest Receiver] Listening on port {listenPort}";
+            }
         }
+
+        if (calibrationVicon)
+        {
+            if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
+            {
+                log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
+                AddTargetPoint();
+            }
+        }
+
         if (msgReady)
         {
             string msg;
@@ -95,16 +123,11 @@ public class QuestUDPReceiver : MonoBehaviour
                 lastViconPos = new Vector3(x, y, z);
                 lastViconRot = new Quaternion(qx, qy, qz, qw);
 
-                // Apply current offsets
-                Vector3 finalPos = lastViconPos + positionOffset;
-                Quaternion finalRot = rotationOffset * lastViconRot;
-
-                if (targetTransform != null)
+                if (fingertipAnchor != null)
                 {
                     if (tracking.vicon)
                     {
-                        targetTransform.position = finalPos;
-                        //targetTransform.localRotation = finalRot;
+                        ApplyAlignment(alignmentMatrix);
                     }
                 }
             }
@@ -116,40 +139,62 @@ public class QuestUDPReceiver : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Call this at runtime (e.g. via UI button) to compute
-    /// positionOffset and rotationOffset so that
-    /// current 'targetTransform' pose becomes the zero-reference
-    /// for the most recent Vicon pose.
-    /// </summary>
+    
     public void CalibrateOffset()
     {
-        if (targetTransform == null)
-        {
-            Debug.LogError("[Quest Receiver] No targetTransform assigned.");
-            return;
-        }
-
-        // Compute position offset: how much Unity object differs from Vicon pos
-        positionOffset = targetTransform.position - lastViconPos;
-
-        // Compute rotation offset: so rotationOffset * lastViconRot == targetRot
-        // => rotationOffset = targetRot * inverse(lastViconRot)
-        //rotationOffset = targetTransform.rotation * Quaternion.Inverse(lastViconRot);
-
-        Vector3 viconForward  = lastViconRot * Vector3.forward;
-        // Headset fingertip’s actual forward:
-        Vector3 headsetForward = targetTransform.forward;
-
-        // rotationOffset makes viconForward → headsetForward
-        rotationOffset = Quaternion.FromToRotation(viconForward, headsetForward);
-
-        Debug.Log($"[Quest Receiver] Calibrated.\n" +
-                  $"  positionOffset = {positionOffset:F6}\n"+
-                  $"  rotationOffset = {rotationOffset.eulerAngles:F6}");
+        
         log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
     }
 
+    public void AddTargetPoint()
+    {
+        sourcePoints.Add(lastViconPos);
+        targetPoints.Add(fingertipAnchor.position);
+        calibrationPointIndex += 1;
+		
+        if (calibrationPointIndex >= 4)
+        {
+            //calibrationPointIndex = 0;
+            alignmentMatrix = CalculateAlignmentTransform();
+            //ApplyAlignment(alignmentTransform);
+            calibrationDistanceError = CalculateCalibrationDistance();
+            log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
+            //SaveOriginalPosition(); 
+        }
+    }
+    
+    private float CalculateCalibrationDistance()
+    {
+        float result = 0;
+
+        for(int i = 0; i < sourcePoints.Count; i++)
+        {
+            result += Vector3.Distance(sourcePoints[i], targetPoints[i]);
+        }
+
+        result = result / sourcePoints.Count;
+        return result;
+    }
+
+    public void ApplyAlignment(Matrix4x4 alignmentTransform)
+    {
+        fingertipAnchor.position = alignmentTransform.MultiplyPoint3x4(lastViconPos);
+        fingertipAnchor.rotation = alignmentTransform.rotation * lastViconRot;
+    }
+
+    public Matrix4x4 CalculateAlignmentTransform()
+    {
+        Vector3[] sourcePointsPosition = new Vector3[sourcePoints.Count];
+        Vector4[] targetPointsPosition = new Vector4[sourcePoints.Count];;
+
+        for (int i = 0; i < sourcePoints.Count; i++)
+        {
+            sourcePointsPosition[i] = sourcePoints[i];
+            targetPointsPosition[i] = new Vector4(targetPoints[i].x, targetPoints[i].y, targetPoints[i].z, 1);
+        }
+
+        return KabschSolver.SolveKabsch(sourcePointsPosition, targetPointsPosition);
+    }
     void OnDisable()
     {
         running = false;
