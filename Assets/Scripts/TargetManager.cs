@@ -79,6 +79,7 @@ public class TargetManager : MonoBehaviour
 
     public GameObject finishText;
     public AudioSource finishAudio;
+    public AudioSource errorAudio;
     private void Awake()
     {
         Instance = this;
@@ -208,6 +209,10 @@ public class TargetManager : MonoBehaviour
             {
                 selectionPositions.Add(touchTip.transform.position);
                 successfulSelection.Add(targets[currentTarget].isSelected);
+                if (!targets[currentTarget].isSelected)
+                {
+                    errorAudio.Play();
+                }
                 selectionQuaternions.Add(indexDistalTip.rotation);
                 timestamp.Add(cumulativeTime);
                 ProceedTrial();
