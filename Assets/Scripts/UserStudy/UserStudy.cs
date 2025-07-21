@@ -24,8 +24,7 @@ public class
     public int currentConditionIndex; // 0 - 27, if reaches 27, increment currentID and reset currentConditionIndex to 0
     public TMP_Text statusText;
 
-    public List<float[]>
-        testingCombinations; // for each float[], float[0] is the size, float[1] is the distance, float[2] is the speed
+    public List<float[]> testingCombinations; // for each float[], float[0] is the size, float[1] is the distance, float[2] is the speed
 
     //public bool training = true;
     public Mode currMode = Mode.Regular;
@@ -206,6 +205,7 @@ public class
             userStudyButtons[i].anchorType = conditions[i];
         }*/
         currentSettingIndex = userStudySettings[currentID][currentConditionIndex] - 1;
+        currentSetting = testingCombinations[currentSettingIndex];
         UpdateStatus();
     }
 
@@ -227,7 +227,9 @@ public class
             List<Vector3> targetPositions = TargetManager.Instance.targetPositions;
             List<Vector3> selectionPositions = TargetManager.Instance.selectionPositions;
             List<Quaternion> selectionQuaternions = TargetManager.Instance.selectionQuaternions;
+            List<int> selectionstepCount = TargetManager.Instance.selectionStepCount;
             List<bool> successfulSelection = TargetManager.Instance.successfulSelection;
+            List<float> selectionOffsets = TargetManager.Instance.selectionOffsets;
 
             // Create a new CSV file with the name as the ID of the current user + the current setting
             string fileName = currentID.ToString() + ".csv";
@@ -243,7 +245,8 @@ public class
                         "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,MovementTime,TargetPositionX,TargetPositionY,TargetPositionZ," +
                         "SelectionPositionX,SelectionPositionY,SelectionPositionZ," +
                         "SelectionQuaternionX,SelectionQuaternionY,SelectionQuaternionZ," +
-                        "SelectionQuaternionW,SuccessfulSelection");
+                        "SelectionQuaternionW,SuccessfulSelection," +
+                        "SelectionStepCount, SelectionCadence, SelectionOffset");
                 }
 
                 //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
@@ -257,7 +260,7 @@ public class
                             $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{timestamp[i]},{movementTime[i]},{targetPositions[i].x},{targetPositions[i].y},{targetPositions[i].z}," +
                             $"{selectionPositions[i].x},{selectionPositions[i].y},{selectionPositions[i].z}," +
                             $"{selectionQuaternions[i].x},{selectionQuaternions[i].y},{selectionQuaternions[i].z}," +
-                            $"{selectionQuaternions[i].w},{successfulSelection[i]}");
+                            $"{selectionQuaternions[i].w},{successfulSelection[i]}, {selectionstepCount[i]}, {selectionstepCount[i] / timestamp[i] * 60}, {selectionOffsets[i]}");
                     }
                     catch (ArgumentOutOfRangeException)
                     {
@@ -270,6 +273,11 @@ public class
             List<float> rawTimestamp = TargetManager.Instance.rawTimestamp;
             List<Vector3> rawPositions = TargetManager.Instance.rawPositions;
             List<Quaternion> rawQuaternions = TargetManager.Instance.rawQuaternions;
+            List<Vector3> rawLeftFootPositions = TargetManager.Instance.rawLFPositions;
+            List<Vector3> rawRightFootPositions = TargetManager.Instance.rawRFPositions;
+            List<Quaternion> rawLeftFootQuaternions = TargetManager.Instance.rawLFQuaternions;
+            List<Quaternion> rawRightFootQuaternions = TargetManager.Instance.rawRFQuaternions;
+            List<int> stepCountRaw = TargetManager.Instance.stepCount;
             List<Vector3> currentTargetPos = TargetManager.Instance.currentTargetPos;
             List<int> currentTargetIndex = TargetManager.Instance.currentTargetIndex;
 
@@ -283,7 +291,12 @@ public class
                 if (fileInfo.Length == 0)
                 {
                     writer.WriteLine(
-                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,currentTargetIndex, currentTargetPositionX, currentTargetPositionY, currentTargetPositionZ, rawPositionX, rawPositionY, rawPositionZ, rawQuaternionX, rawQuaternionY, rawQuaternionZ, rawQuaternionW");
+                        "UID,Config,Size,Distance,Speed,IndexOfDifficulty,Timestamp,currentTargetIndex, currentTargetPositionX, currentTargetPositionY, currentTargetPositionZ, rawPositionX, rawPositionY, rawPositionZ, rawQuaternionX, rawQuaternionY, rawQuaternionZ, rawQuaternionW, " +
+                        "rawLeftFootPositionX, rawLeftFootPositionY, rawLeftFootPositionZ, " +
+                        "rawLeftFootQuaternionX, rawLeftFootQuaternionY, rawLeftFootQuaternionZ, rawLeftFootQuaternionW, " +
+                        "rawRightFootPositionX, rawRightFootPositionY, rawRightFootPositionZ, " +
+                        "rawRightFootQuaternionX, rawRightFootQuaternionY, rawRightFootQuaternionZ, rawRightFootQuaternionW, " +
+                        "stepCountRaw");
                 }
 
                 //writer.WriteLine("UID,Size,Distance, TargetSpeed,ActualSpeed,Distance,#ofGaze,GazeDwellingTime,RawX,RawY,RawZ,RawRotX,RawRotY,RawRotZ,RawRotW");
@@ -294,7 +307,12 @@ public class
                     try
                     {
                         writer.WriteLine(
-                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{rawTimestamp[i]},{currentTargetIndex[i]},{currentTargetPos[i].x},{currentTargetPos[i].y},{currentTargetPos[i].z},{rawPositions[i].x},{rawPositions[i].y},{rawPositions[i].z},{rawQuaternions[i].x},{rawQuaternions[i].y},{rawQuaternions[i].z},{rawQuaternions[i].w}");
+                            $"{currentID.ToString()},{currentSettingIndex},{size},{distance},{speed},{indexOfDifficulty},{rawTimestamp[i]},{currentTargetIndex[i]},{currentTargetPos[i].x},{currentTargetPos[i].y},{currentTargetPos[i].z},{rawPositions[i].x},{rawPositions[i].y},{rawPositions[i].z},{rawQuaternions[i].x},{rawQuaternions[i].y},{rawQuaternions[i].z},{rawQuaternions[i].w}," +
+                            $"{rawLeftFootPositions[i].x},{rawLeftFootPositions[i].y},{rawLeftFootPositions[i].z}," +
+                            $"{rawLeftFootQuaternions[i].x},{rawLeftFootQuaternions[i].y},{rawLeftFootQuaternions[i].z},{rawLeftFootQuaternions[i].w}," +
+                            $"{rawRightFootPositions[i].x},{rawRightFootPositions[i].y},{rawRightFootPositions[i].z}," +
+                            $"{rawRightFootQuaternions[i].x},{rawRightFootQuaternions[i].y},{rawRightFootQuaternions[i].z},{rawRightFootQuaternions[i].w}," +
+                            $"{stepCountRaw[i]}");
                     }
                     catch (ArgumentOutOfRangeException)
                     {

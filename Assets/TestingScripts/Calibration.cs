@@ -6,6 +6,8 @@ public class Calibration : MonoBehaviour
 {
     [SerializeField]
     public List<GameObject> calibrationPoints;
+    
+    public GameObject FilterControl;
 
     public GameObject caliContainer;
     public static Calibration Instance;
@@ -52,6 +54,9 @@ public class Calibration : MonoBehaviour
         {
             toggle = !toggle;
             caliContainer.SetActive(toggle);
+            FilterControl.SetActive(!FilterControl.activeSelf);
+            Vector3 camForward = TargetManager.Instance.CenterCamera.forward;
+            FilterControl.transform.position = TargetManager.Instance.CenterCamera.position + (camForward * 0.2f)*0.8f;
         }
 
         if (toggle)

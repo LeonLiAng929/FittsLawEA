@@ -11592,30 +11592,42 @@ MonoBehaviour:
   cameraRig: {fileID: 285555471}
   targetContainer: {fileID: 1684480791}
   defaultHeight: 1.8
+  CenterCamera: {fileID: 0}
   targets: []
   currentTarget: 0
   forward: 1
   trialStarted: 0
   trialEnded: 0
   timer: 0
-  touchTip: {fileID: 562113513}
-  indexDistalTip: {fileID: 686317392}
-  FilterControl: {fileID: 8482341793462722996}
+  touchTip: {fileID: 73028936}
+  indexDistalTip: {fileID: 73028937}
   movementTime: []
   timestamp: []
   targetPositions: []
   selectionPositions: []
   selectionQuaternions: []
+  selectionStepCount: 
   successfulSelection: 
   rawQuaternions: []
   rawPositions: []
+  rawLFQuaternions: []
+  rawLFPositions: []
+  rawRFQuaternions: []
+  rawRFPositions: []
   cumulativeTime: 0
+  currStepCount: 0
   currentTargetPos: []
   currentTargetIndex: 
   rawTimestamp: []
+  stepCount: 
+  selectionOffsets: []
   finishText: {fileID: 1589505414}
   finishAudio: {fileID: 138737240}
   errorAudio: {fileID: 2009539730}
+  LFPos: {x: 0, y: 0, z: 0}
+  LFRot: {x: 0, y: 0, z: 0, w: 0}
+  RFPos: {x: 0, y: 0, z: 0}
+  RFRot: {x: 0, y: 0, z: 0, w: 0}
   prefabToInstantiate: {fileID: 2069762350}
 --- !u!4 &401990549
 Transform:
@@ -33947,6 +33959,7 @@ MonoBehaviour:
   calibrationPoints:
   - {fileID: 76501790}
   - {fileID: 1570881961}
+  FilterControl: {fileID: 8482341793462722996}
   caliContainer: {fileID: 1703674753}
   toggle: 0
   midPoint: {x: 0, y: 0, z: 0}

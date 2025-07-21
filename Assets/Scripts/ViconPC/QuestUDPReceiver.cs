@@ -33,8 +33,12 @@ public class QuestUDPReceiver : MonoBehaviour
     private object      lockObj = new object();
 
     // Last raw Vicon pose
-    private Vector3     lastViconPos;
-    private Quaternion  lastViconRot;
+    private Vector3     lastViconFingerPos;
+    private Quaternion  lastViconFingerRot;
+    private Vector3     lastViconLeftFootPos;
+    private Quaternion  lastViconLeftFootRot;
+    private Vector3     lastViconRightFootPos;
+    private Quaternion  lastViconRightFootRot;
 
     public TMP_Text log;
     public List<Vector3> sourcePoints = new List<Vector3>();
@@ -110,18 +114,38 @@ public class QuestUDPReceiver : MonoBehaviour
 
             // Parse x,y,z,qx,qy,qz,qw
             var parts = msg.Split(',');
-            if (parts.Length >= 7
-                && float.TryParse(parts[0], out float x)
-                && float.TryParse(parts[1], out float y)
-                && float.TryParse(parts[2], out float z)
-                && float.TryParse(parts[3], out float qx)
-                && float.TryParse(parts[4], out float qy)
-                && float.TryParse(parts[5], out float qz)
-                && float.TryParse(parts[6], out float qw))
+            if (parts.Length >= 21
+                && float.TryParse(parts[0], out float fingerX)
+                && float.TryParse(parts[1], out float fingerY)
+                && float.TryParse(parts[2], out float fingerZ)
+                && float.TryParse(parts[3], out float fingerqx)
+                && float.TryParse(parts[4], out float fingerqy)
+                && float.TryParse(parts[5], out float fingerqz)
+                && float.TryParse(parts[6], out float fingerqw)
+                && float.TryParse(parts[7], out float leftX)
+                && float.TryParse(parts[8], out float leftY)
+                && float.TryParse(parts[9], out float leftZ)
+                && float.TryParse(parts[10], out float leftqx)
+                && float.TryParse(parts[11], out float leftqy)
+                && float.TryParse(parts[12], out float leftqz)
+                && float.TryParse(parts[13], out float leftqw)
+                && float.TryParse(parts[14], out float rightX)
+                && float.TryParse(parts[15], out float rightY)
+                && float.TryParse(parts[16], out float rightZ)
+                && float.TryParse(parts[17], out float rightqx)
+                && float.TryParse(parts[18], out float rightqy)
+                && float.TryParse(parts[19], out float rightqz)
+                && float.TryParse(parts[20], out float rightqw))
             {
                 // Store raw Vicon pose
-                lastViconPos = new Vector3(x, y, z);
-                lastViconRot = new Quaternion(qx, qy, qz, qw);
+                lastViconFingerPos = new Vector3(fingerX, fingerY, fingerZ);
+                lastViconFingerRot = new Quaternion(fingerqx, fingerqy, fingerqz, fingerqw);
+                
+                lastViconLeftFootPos = new Vector3(leftX, leftY, leftZ);
+                lastViconLeftFootRot = new Quaternion(leftqx, leftqy, leftqz, leftqw);
+                
+                lastViconRightFootPos = new Vector3(rightX, rightY, rightZ);
+                lastViconRightFootRot = new Quaternion(rightqx, rightqy, rightqz, rightqw);
 
                 if (fingertipAnchor != null)
                 {
@@ -148,11 +172,11 @@ public class QuestUDPReceiver : MonoBehaviour
 
     public void AddTargetPoint()
     {
-        sourcePoints.Add(lastViconPos);
+        sourcePoints.Add(lastViconFingerPos);
         targetPoints.Add(fingertipAnchor.position);
         calibrationPointIndex += 1;
 		
-        if (calibrationPointIndex >= 4)
+        if (calibrationPointIndex >= 12)
         {
             //calibrationPointIndex = 0;
             alignmentMatrix = CalculateAlignmentTransform();
@@ -178,8 +202,12 @@ public class QuestUDPReceiver : MonoBehaviour
 
     public void ApplyAlignment(Matrix4x4 alignmentTransform)
     {
-        fingertipAnchor.position = alignmentTransform.MultiplyPoint3x4(lastViconPos);
-        fingertipAnchor.rotation = alignmentTransform.rotation * lastViconRot;
+        fingertipAnchor.position = alignmentTransform.MultiplyPoint3x4(lastViconFingerPos);
+        fingertipAnchor.rotation = alignmentTransform.rotation * lastViconFingerRot;
+        TargetManager.Instance.LFPos = alignmentTransform.MultiplyPoint3x4(lastViconLeftFootPos);
+        TargetManager.Instance.LFRot = alignmentTransform.rotation * lastViconLeftFootRot;
+        TargetManager.Instance.RFPos = alignmentTransform.MultiplyPoint3x4(lastViconRightFootPos);
+        TargetManager.Instance.RFRot = alignmentTransform.rotation * lastViconRightFootRot;
     }
 
     public Matrix4x4 CalculateAlignmentTransform()

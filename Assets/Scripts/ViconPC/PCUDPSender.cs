@@ -14,6 +14,9 @@ public class PCUDPSender : MonoBehaviour
     private UdpClient udpClient;
     private IPEndPoint remoteEP;
 
+    public Transform fingerTip;
+    public Transform leftFoot;
+    public Transform rightFoot;
     void Start()
     {
         // Create the UDP client and endpoint
@@ -25,12 +28,22 @@ public class PCUDPSender : MonoBehaviour
     void LateUpdate()
     {
         // Read your Vicon‐driven transform (attach this script to that GameObject)
-        Vector3    p = transform.position;
-        Quaternion r = transform.rotation;
+        Vector3    fingerP = fingerTip.position;
+        Quaternion fingerR = fingerTip.rotation;
+        
+        Vector3    leftP = leftFoot.position;
+        Quaternion leftR = leftFoot.rotation;
+        
+        Vector3    rightP = rightFoot.position;
+        Quaternion rightR = rightFoot.rotation;
 
         // Format as CSV: x,y,z,qx,qy,qz,qw
-        string msg = $"{p.x:F6},{p.y:F6},{p.z:F6}," +
-                     $"{r.x:F6},{r.y:F6},{r.z:F6},{r.w:F6}";
+        string msg = $"{fingerP.x:F3},{fingerP.y:F3},{fingerP.z:F3}," +
+                     $"{fingerR.x:F3},{fingerR.y:F3},{fingerR.z:F3},{fingerR.w:F3},"+
+                     $"{leftP.x:F3},{leftP.y:F3},{leftP.z:F3}," +
+                     $"{leftR.x:F3},{leftR.y:F3},{leftR.z:F3},{leftR.w:F3},"+
+                     $"{rightP.x:F3},{rightP.y:F3},{rightP.z:F3}," +
+                     $"{rightR.x:F3},{rightR.y:F3},{rightR.z:F3},{rightR.w:F3}";
 
         byte[] data = Encoding.UTF8.GetBytes(msg);
         udpClient.Send(data, data.Length, remoteEP);

@@ -46,7 +46,7 @@ public class TargetManager : MonoBehaviour
     [SerializeField]
     protected float defaultHeight;
     
-    private Transform CenterCamera;
+    public Transform CenterCamera;
     
     public List<TargetBehaviour> targets = new List<TargetBehaviour>();
     public int currentTarget = 0;
@@ -56,30 +56,46 @@ public class TargetManager : MonoBehaviour
     public float timer = 0;
     public GameObject touchTip;
     public Transform indexDistalTip;
-    public GameObject FilterControl;
+   
     
     #region ForUserStudy
     /*public List<float> speed = new List<float>();
     public List<float> distance = new List<float>();
     public List<float> size = new List<float>();
     public List<float> indexOfDifficulty = new List<float>(); //Mathf.Log((distance[0]/size[0])+1,2);*/
+    private float currTargetSpeed;
     public List<float> movementTime = new List<float>();
     public List<float> timestamp = new List<float>();
     public List<Vector3> targetPositions = new List<Vector3>();
     public List<Vector3> selectionPositions = new List<Vector3>();
     public List<Quaternion> selectionQuaternions = new List<Quaternion>();
+    public List<int> selectionStepCount = new List<int>();
     public List<bool> successfulSelection = new List<bool>();
     public List<Quaternion> rawQuaternions = new List<Quaternion>();
     public List<Vector3> rawPositions = new List<Vector3>();
+    public List<Quaternion> rawLFQuaternions = new List<Quaternion>();
+    public List<Vector3> rawLFPositions = new List<Vector3>();
+    public List<Quaternion> rawRFQuaternions = new List<Quaternion>();
+    public List<Vector3> rawRFPositions = new List<Vector3>();
     public float cumulativeTime = 0;
+    public int currStepCount = 0;
     public List<Vector3> currentTargetPos = new List<Vector3>();
     public List<int> currentTargetIndex = new List<int>();
     public List<float> rawTimestamp = new List<float>();
+    public List<int> stepCount = new List<int>();
+    private float prevFeetDistance = 0;
+    private float prevDerivative = 0;
+    public List<float> selectionOffsets = new List<float>();
     #endregion ForUserStudy
 
     public GameObject finishText;
     public AudioSource finishAudio;
     public AudioSource errorAudio;
+
+    public Vector3 LFPos;
+    public Quaternion LFRot;
+    public Vector3 RFPos;
+    public Quaternion RFRot;
     private void Awake()
     {
         Instance = this;
@@ -107,6 +123,8 @@ public class TargetManager : MonoBehaviour
 
     public void Reset()
     {
+        
+        currTargetSpeed = UserStudy.instance.currentSetting[2];
         finishText.SetActive(false);
         targets = new List<TargetBehaviour>();
         currentTarget = 0;
@@ -120,16 +138,23 @@ public class TargetManager : MonoBehaviour
         indexOfDifficulty = new List<float>();*/
         movementTime = new List<float>();
         targetPositions = new List<Vector3>();
+        selectionStepCount = new List<int>();
         selectionPositions = new List<Vector3>();
         successfulSelection = new List<bool>();
         rawQuaternions = new List<Quaternion>();
         rawPositions = new List<Vector3>();
+        rawRFPositions = new List<Vector3>();
+        rawRFQuaternions = new List<Quaternion>();
+        rawLFPositions = new List<Vector3>();
+        rawLFQuaternions = new List<Quaternion>();
+        currStepCount = 0;
         cumulativeTime = 0;
         currentTargetPos = new List<Vector3>();
         currentTargetIndex = new List<int>();
         rawTimestamp = new List<float>();
         timestamp = new List<float>();
         selectionQuaternions = new List<Quaternion>();
+        selectionOffsets = new List<float>();
         foreach (TargetBehaviour target in targetContainer.GetComponentsInChildren<TargetBehaviour>())
         {
             Destroy(target.gameObject);
@@ -214,6 +239,8 @@ public class TargetManager : MonoBehaviour
                     errorAudio.Play();
                 }
                 selectionQuaternions.Add(indexDistalTip.rotation);
+                selectionStepCount.Add(currStepCount);
+                selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
                 timestamp.Add(cumulativeTime);
                 ProceedTrial();
                 if (!trialStarted)
@@ -325,6 +352,11 @@ public class TargetManager : MonoBehaviour
         {
             rawQuaternions.Add(indexDistalTip.rotation);
             rawPositions.Add(touchTip.transform.position);
+            rawLFPositions.Add(LFPos);
+            rawRFPositions.Add(RFPos);
+            rawLFQuaternions.Add(LFRot);
+            rawRFQuaternions.Add(RFRot);
+            stepCount.Add(currStepCount);
             currentTargetPos.Add(targets[currentTarget].transform.position);
             currentTargetIndex.Add(currentTarget);
             rawTimestamp.Add(cumulativeTime);
@@ -340,6 +372,19 @@ public class TargetManager : MonoBehaviour
             {
                 timer += Time.deltaTime;
                 cumulativeTime += Time.deltaTime;
+                if (currTargetSpeed != 0)
+                {
+                    float d = Vector3.Distance(LFPos, RFPos);
+                    float derivative = d - prevFeetDistance;
+                    if (prevDerivative > 0f && derivative <= 0f)
+                    {
+                        currStepCount += 1;
+                        
+                    }
+
+                    prevDerivative = derivative;
+                    prevFeetDistance = d;
+                }
             }
         }
 
@@ -350,7 +395,6 @@ public class TargetManager : MonoBehaviour
             midpoint.y = CenterCamera.position.y;
             //camForward.y = 0;
             targetContainer.transform.position = midpoint- new Vector3(0,.25f,0); // keep at chest level
-            FilterControl.transform.position = CenterCamera.position + (camForward * defaultDistance)*0.8f;
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
                 
@@ -361,16 +405,16 @@ public class TargetManager : MonoBehaviour
             InitialiseTrial();
         }
         
-        if (OVRInput.GetDown(OVRInput.RawButton.LThumbstickDown))
+        if (OVRInput.GetDown(OVRInput.Button.PrimaryThumbstickDown))
         {
             UserStudy.instance.UpdateStatus();
             UserStudy.instance.statusText.gameObject.SetActive(!UserStudy.instance.statusText.gameObject.activeSelf);
         }
         
-        if (OVRInput.GetDown(OVRInput.RawButton.RThumbstickDown))
-        {
-            FilterControl.SetActive(!FilterControl.activeSelf);
-        }
+        // if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickDown))
+        // {
+        //     FilterControl.SetActive(!FilterControl.activeSelf);
+        // }
     }
     
     
