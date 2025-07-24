@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -32,7 +33,7 @@ public class QuestUDPReceiver : MonoBehaviour
     private bool        msgReady;
     private object      lockObj = new object();
 
-    // Last raw Vicon pose
+    
     private Vector3     lastViconFingerPos;
     private Quaternion  lastViconFingerRot;
     private Vector3     lastViconLeftFootPos;
@@ -47,6 +48,29 @@ public class QuestUDPReceiver : MonoBehaviour
     [SerializeField]
     public Matrix4x4 alignmentMatrix; 
     private bool calibrationVicon = false;
+    public Transform calibrationContainer;
+    public List<TargetBehaviour> calibrationPoints = new List<TargetBehaviour>();
+
+    public int calibrationInstance = 27;
+    //For Kabsch Calibration
+
+    public void SpawnCalibrationPoint()
+    {
+        targetPoints.Clear();
+        calibrationPoints.Clear();
+        calibrationPointIndex = 0;
+        calibrationContainer.gameObject.SetActive(true);
+        Vector3 midpoint = Calibration.Instance.midPoint;
+        midpoint.y = TargetManager.Instance.CenterCamera.position.y;// chest level
+        calibrationContainer.position = midpoint- new Vector3(0,.25f,-.15f);
+        foreach (TargetBehaviour point in calibrationContainer.GetComponentsInChildren<TargetBehaviour>())
+        {
+            targetPoints.Add(point.transform.position);
+            calibrationPoints.Add(point);
+        }
+        calibrationPoints[calibrationPointIndex].OnTargetSelect();
+    }
+
     void Start()
     {
         // Start UDP listener
@@ -91,6 +115,7 @@ public class QuestUDPReceiver : MonoBehaviour
             else
             {
                 log.text = "Calibration Start..." + $" [Quest Receiver] Listening on port {listenPort}";
+                SpawnCalibrationPoint();
             }
         }
 
@@ -173,16 +198,19 @@ public class QuestUDPReceiver : MonoBehaviour
     public void AddTargetPoint()
     {
         sourcePoints.Add(lastViconFingerPos);
-        targetPoints.Add(fingertipAnchor.position);
+        //targetPoints.Add(fingertipAnchor.position);
+        calibrationPoints[calibrationPointIndex].OnTargetDeselect();
         calibrationPointIndex += 1;
-		
-        if (calibrationPointIndex >= 12)
+        if (calibrationPointIndex < targetPoints.Count)
+		    calibrationPoints[calibrationPointIndex].OnTargetSelect();
+        else
         {
             //calibrationPointIndex = 0;
             alignmentMatrix = CalculateAlignmentTransform();
             //ApplyAlignment(alignmentTransform);
             calibrationDistanceError = CalculateCalibrationDistance();
             log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
+            calibrationContainer.gameObject.SetActive(false);
             //SaveOriginalPosition(); 
         }
     }

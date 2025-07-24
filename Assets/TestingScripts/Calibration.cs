@@ -34,6 +34,7 @@ public class Calibration : MonoBehaviour
     {
         currPoint = calibrationPoints[0];
         currPoint.transform.GetComponent<MeshRenderer>().material.color = Color.green;
+        FilterControl.SetActive(false);
     }
 
     void UpdateMidPoint()

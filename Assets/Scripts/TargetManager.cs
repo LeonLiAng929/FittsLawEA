@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Meta.XR.MRUtilityKit.SceneDecorator;
 using Oculus.Interaction;
 using Oculus.Platform.Models;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,7 +37,6 @@ public class TargetManager : MonoBehaviour
     /// <summary> The offset. </summary>
     [SerializeField, Tooltip("The offset from the view port center applied based on the object anchor selection.")]
     protected Vector2 Offset = new Vector2(0.1f, 0.1f);
-    
 
     [SerializeField]
     protected OVRCameraRig cameraRig;
@@ -96,6 +96,10 @@ public class TargetManager : MonoBehaviour
     public Quaternion LFRot;
     public Vector3 RFPos;
     public Quaternion RFRot;
+    public float minSeparationThreshold = 0.3f;
+    public float minStepInterval       = 0.2f;
+    private float lastStepTime   = -Mathf.Infinity;
+    public TMP_Text TestText;
     private void Awake()
     {
         Instance = this;
@@ -360,7 +364,6 @@ public class TargetManager : MonoBehaviour
             currentTargetPos.Add(targets[currentTarget].transform.position);
             currentTargetIndex.Add(currentTarget);
             rawTimestamp.Add(cumulativeTime);
- 
         }
     }
 
@@ -374,16 +377,21 @@ public class TargetManager : MonoBehaviour
                 cumulativeTime += Time.deltaTime;
                 if (currTargetSpeed != 0)
                 {
-                    float d = Vector3.Distance(LFPos, RFPos);
+                    var a = new Vector3(0,0,LFPos.z);
+                    var b = new Vector3(0,0,RFPos.z);
+                    
+                    float d = Vector3.Distance(a, b);
                     float derivative = d - prevFeetDistance;
-                    if (prevDerivative > 0f && derivative <= 0f)
+                    if (prevDerivative > 0f && derivative <= 0f && d > minSeparationThreshold&& Time.time - lastStepTime > minStepInterval)
                     {
                         currStepCount += 1;
-                        
+                        lastStepTime = Time.time;
                     }
-
                     prevDerivative = derivative;
                     prevFeetDistance = d;
+                    Debug.Log(currStepCount.ToString() + " distance: "+d.ToString("F2") + " derivative: " + derivative.ToString("F2"));
+                    TestText.text = currStepCount.ToString() + " distance: " + d.ToString("F2") + " derivative: " +
+                                    derivative.ToString("F2");
                 }
             }
         }
@@ -395,9 +403,9 @@ public class TargetManager : MonoBehaviour
             midpoint.y = CenterCamera.position.y;
             //camForward.y = 0;
             targetContainer.transform.position = midpoint- new Vector3(0,.25f,0); // keep at chest level
+            
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
-                
         }
         
         if (OVRInput.GetDown(OVRInput.RawButton.X))
