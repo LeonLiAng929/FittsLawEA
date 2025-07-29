@@ -96,8 +96,8 @@ public class TargetManager : MonoBehaviour
     public Quaternion LFRot;
     public Vector3 RFPos;
     public Quaternion RFRot;
-    public float minSeparationThreshold = 0.3f;
-    public float minStepInterval       = 0.2f;
+    private float minSeparationThreshold = 0.3f;
+    private float minStepInterval = 0.2f;
     private float lastStepTime   = -Mathf.Infinity;
     public TMP_Text TestText;
     private void Awake()
@@ -380,7 +380,7 @@ public class TargetManager : MonoBehaviour
                     var a = new Vector3(0,0,LFPos.z);
                     var b = new Vector3(0,0,RFPos.z);
                     
-                    float d = Vector3.Distance(a, b);
+                    float d = MathF.Round(Vector3.Distance(a, b),1);
                     float derivative = d - prevFeetDistance;
                     if (prevDerivative > 0f && derivative <= 0f && d > minSeparationThreshold&& Time.time - lastStepTime > minStepInterval)
                     {

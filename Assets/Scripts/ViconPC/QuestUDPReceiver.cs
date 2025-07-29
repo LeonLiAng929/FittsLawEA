@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 public class QuestUDPReceiver : MonoBehaviour
 {
+    public static QuestUDPReceiver Instance;
     [Header("UDP Settings")]
     [Tooltip("Port PC is sending on")]
     public int listenPort = 51002;
@@ -51,7 +52,7 @@ public class QuestUDPReceiver : MonoBehaviour
     public Transform calibrationContainer;
     public List<TargetBehaviour> calibrationPoints = new List<TargetBehaviour>();
 
-    public int calibrationInstance = 27;
+    //public int calibrationInstance = 27;
     //For Kabsch Calibration
 
     public void SpawnCalibrationPoint()
@@ -80,6 +81,7 @@ public class QuestUDPReceiver : MonoBehaviour
         receiveThread.Start();
         Debug.Log($"[Quest Receiver] Listening on port {listenPort}");
         log.text = $"[Quest Receiver] Listening on port {listenPort}";
+        Instance = this;
     }
 
     void ReceiveLoop()
@@ -256,4 +258,5 @@ public class QuestUDPReceiver : MonoBehaviour
         running = false;
         udpClient.Close();
     }
+    
 }

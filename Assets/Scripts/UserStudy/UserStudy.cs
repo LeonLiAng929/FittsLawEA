@@ -51,7 +51,9 @@ public class
         LoadStudySettings();
         LoadCurrentParticipantRecord();
         LoadCurrentSettings();
+        //LoadCalibrationMatrix();
         UpdateStatus();
+        
         //currentSettingIndex = userStudySettings[currentID][currentConditionIndex];
         
         //Invoke(nameof(SetTargetSpeedPerHourToNine),3f);
@@ -65,6 +67,43 @@ public class
     {
     }
 
+    public void LoadCalibrationMatrix()
+    {
+        string fname = "CalibrationMatrix.csv";
+        string path = Path.Combine(Application.persistentDataPath, fname);
+        Matrix4x4 matrix = new Matrix4x4();
+        string[] lines = File.ReadAllLines(path);
+
+        for (int row = 0; row < 4; row++)
+        {
+            string[] values = lines[row].Split(',');
+            matrix[row, 0] = float.Parse(values[0]);
+            matrix[row, 1] = float.Parse(values[1]);
+            matrix[row, 2] = float.Parse(values[2]);
+            matrix[row, 3] = float.Parse(values[3]);
+        }
+        
+        QuestUDPReceiver.Instance.alignmentMatrix = matrix;
+    }
+
+    public void SaveCalibrationMatrix()
+    {
+        string fname = "CalibrationMatrix.csv";
+        string path = Path.Combine(Application.persistentDataPath, fname);
+        Matrix4x4 matrix = QuestUDPReceiver.Instance.alignmentMatrix;
+        using (StreamWriter writer = new StreamWriter(path))
+        {
+            for (int row = 0; row < 4; row++)
+            {
+                writer.WriteLine($"{matrix[row, 0]},{matrix[row, 1]},{matrix[row, 2]},{matrix[row, 3]}");
+            }
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveCalibrationMatrix();
+    }
 
     public void LoadCurrentParticipantRecord()
     {
