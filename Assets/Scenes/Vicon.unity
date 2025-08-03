@@ -48041,33 +48041,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: fingermodel
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 711947781}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
---- !u!1 &711947780 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
-  m_PrefabInstance: {fileID: 711947779}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &711947781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 711947780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4fead0a62ec76b479f2b95a6bab9234, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObjectName: Test
-  Client: {fileID: 0}
 --- !u!1 &711977936
 GameObject:
   m_ObjectHideFlags: 0
