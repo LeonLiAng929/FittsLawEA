@@ -99,7 +99,7 @@ public class QuestUDPReceiver : MonoBehaviour
     void Start()
     {
         // Start UDP listener
-        caliCube.gameObject.SetActive(false);
+        //caliCube.gameObject.SetActive(false);
         udpClient = new UdpClient(listenPort);
         running = true;
         receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
@@ -140,7 +140,7 @@ public class QuestUDPReceiver : MonoBehaviour
                     // targetPoints.Clear();
                     // calibrationPointIndex = 0;
                     alignmentMatrix = CalculateAlignmentTransform2();
-                    caliCube.gameObject.SetActive(false);
+                    //caliCube.gameObject.SetActive(false);
                     log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
             }
             else
@@ -329,7 +329,7 @@ public class QuestUDPReceiver : MonoBehaviour
         // Vector3 targetPos = caliCube.position;
         // Quaternion targetRot = caliCube.rotation;
 
-        Matrix4x4 viconTransform = Matrix4x4.TRS(lastViconCaliCubePos, lastViconCaliCubeRot, Vector3.one);
+        Matrix4x4 viconTransform = Matrix4x4.TRS(lastViconFingerPos, lastViconFingerRot, Vector3.one);
         Matrix4x4 unityTransform = Matrix4x4.TRS(caliCube.position, caliCube.rotation, Vector3.one);
         var C = new Matrix4x4(
             new Vector4(  0, 0, -1, 0 ),
@@ -340,8 +340,8 @@ public class QuestUDPReceiver : MonoBehaviour
         
         Matrix4x4 alignmentTransform = C*unityTransform * viconTransform.inverse;
         
-        Matrix4x4 posOffset = Matrix4x4.TRS(caliCube.position - alignmentTransform.MultiplyPoint3x4(lastViconCaliCubePos), Quaternion.identity, Vector3.one);
-        rotOffset = Quaternion.Inverse(alignmentTransform.rotation*lastViconCaliCubeRot) * caliCube.rotation;
+        Matrix4x4 posOffset = Matrix4x4.TRS(caliCube.position - alignmentTransform.MultiplyPoint3x4(lastViconFingerPos), Quaternion.identity, Vector3.one);
+        rotOffset = Quaternion.Inverse(alignmentTransform.rotation*lastViconFingerRot) * caliCube.rotation;
         alignmentTransform = posOffset * alignmentTransform;
         //Matrix4x4 alignmentTransform = Matrix4x4.TRS(targetPos, targetRot * Quaternion.Inverse(sourceRot), Vector3.one);
         return alignmentTransform;
@@ -350,15 +350,14 @@ public class QuestUDPReceiver : MonoBehaviour
     public void ApplyAlignment2()
     {
         fingertipAnchor.position = alignmentMatrix.MultiplyPoint3x4(lastViconFingerPos);
-        fingertipAnchor.localPosition += fingerTipOffset;
         fingertipAnchor.rotation = alignmentMatrix.rotation * lastViconFingerRot* rotOffset;
         TargetManager.Instance.LFPos = alignmentMatrix.MultiplyPoint3x4(lastViconLeftFootPos);
         TargetManager.Instance.LFRot = alignmentMatrix.rotation * lastViconLeftFootRot* rotOffset;
         TargetManager.Instance.RFPos = alignmentMatrix.MultiplyPoint3x4(lastViconRightFootPos);
         TargetManager.Instance.RFRot = alignmentMatrix.rotation * lastViconRightFootRot* rotOffset;
-        caliCube.gameObject.SetActive(true);
-        caliCube.rotation = alignmentMatrix.rotation * lastViconCaliCubeRot* rotOffset;
-        caliCube.position = alignmentMatrix.MultiplyPoint3x4(lastViconCaliCubePos);
+        // caliCube.gameObject.SetActive(true);
+        // caliCube.rotation = alignmentMatrix.rotation * lastViconCaliCubeRot* rotOffset;
+        // caliCube.position = alignmentMatrix.MultiplyPoint3x4(lastViconCaliCubePos);
     }
     void OnDisable()
     {
