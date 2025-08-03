@@ -17,6 +17,8 @@ public class PCUDPSender : MonoBehaviour
     public Transform fingerTip;
     public Transform leftFoot;
     public Transform rightFoot;
+    public Transform caliCube;
+    
     void Start()
     {
         // Create the UDP client and endpoint
@@ -36,6 +38,9 @@ public class PCUDPSender : MonoBehaviour
         
         Vector3    rightP = rightFoot.position;
         Quaternion rightR = rightFoot.rotation;
+        
+        Vector3   caliP = caliCube.position;
+        Quaternion caliR = caliCube.rotation;
 
         // Format as CSV: x,y,z,qx,qy,qz,qw
         string msg = $"{fingerP.x:F3},{fingerP.y:F3},{fingerP.z:F3}," +
@@ -43,7 +48,9 @@ public class PCUDPSender : MonoBehaviour
                      $"{leftP.x:F3},{leftP.y:F3},{leftP.z:F3}," +
                      $"{leftR.x:F3},{leftR.y:F3},{leftR.z:F3},{leftR.w:F3},"+
                      $"{rightP.x:F3},{rightP.y:F3},{rightP.z:F3}," +
-                     $"{rightR.x:F3},{rightR.y:F3},{rightR.z:F3},{rightR.w:F3}";
+                     $"{rightR.x:F3},{rightR.y:F3},{rightR.z:F3},{rightR.w:F3}," +
+                     $"{caliP.x:F3},{caliP.y:F3},{caliP.z:F3}," +
+                     $"{caliR.x:F3},{caliR.y:F3},{caliR.z:F3},{caliR.w:F3}";
 
         byte[] data = Encoding.UTF8.GetBytes(msg);
         udpClient.Send(data, data.Length, remoteEP);

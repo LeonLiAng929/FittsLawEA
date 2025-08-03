@@ -41,8 +41,11 @@ public class QuestUDPReceiver : MonoBehaviour
     private Quaternion  lastViconLeftFootRot;
     private Vector3     lastViconRightFootPos;
     private Quaternion  lastViconRightFootRot;
+    private Vector3     lastViconCaliCubePos;
+    private Quaternion  lastViconCaliCubeRot;
 
     public TMP_Text log;
+    // procustes alignment
     public List<Vector3> sourcePoints = new List<Vector3>();
     public List<Vector3> targetPoints = new List<Vector3>();
     public int calibrationPointIndex;
@@ -51,7 +54,28 @@ public class QuestUDPReceiver : MonoBehaviour
     private bool calibrationVicon = false;
     public Transform calibrationContainer;
     public List<TargetBehaviour> calibrationPoints = new List<TargetBehaviour>();
+    
+    // physical object alignment --- calibration method 2
+    public Transform caliCube;
+    private CaliMovementControl movementControl = CaliMovementControl.Position;
+    private Quaternion rotOffset;
+    public Vector3 fingerTipOffset;
 
+    private enum CaliMovementControl
+    {
+        Position,
+        Rotation
+    }
+
+    public void SwitchMovement()
+    {
+        movementControl = movementControl switch
+        {
+            CaliMovementControl.Position => CaliMovementControl.Rotation,
+            CaliMovementControl.Rotation => CaliMovementControl.Position
+        };
+    }
+    
     //public int calibrationInstance = 27;
     //For Kabsch Calibration
 
@@ -75,6 +99,7 @@ public class QuestUDPReceiver : MonoBehaviour
     void Start()
     {
         // Start UDP listener
+        caliCube.gameObject.SetActive(false);
         udpClient = new UdpClient(listenPort);
         running = true;
         receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
@@ -110,23 +135,51 @@ public class QuestUDPReceiver : MonoBehaviour
             calibrationVicon = !calibrationVicon;
             if (!calibrationVicon)
             {
-                    sourcePoints.Clear();
-                    targetPoints.Clear();
-                    calibrationPointIndex = 0;
+                // Procrustes alignment
+                    // sourcePoints.Clear();
+                    // targetPoints.Clear();
+                    // calibrationPointIndex = 0;
+                    alignmentMatrix = CalculateAlignmentTransform2();
+                    caliCube.gameObject.SetActive(false);
+                    log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
             }
             else
             {
-                log.text = "Calibration Start..." + $" [Quest Receiver] Listening on port {listenPort}";
-                SpawnCalibrationPoint();
+                log.text = "Calibrating...Position Calibration Mode";
+                caliCube.gameObject.SetActive(true);
+                // Procrustes alignment
+                //SpawnCalibrationPoint();
             }
         }
 
         if (calibrationVicon)
         {
+            // Procrustes alignment
+            // if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
+            // {
+            //     log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
+            //     AddTargetPoint();
+            // }
+            
+            // alignemnt method 2
             if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
             {
-                log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
-                AddTargetPoint();
+                SwitchMovement();
+            }
+            if(movementControl == CaliMovementControl.Position)
+            {
+                log.text = "Calibrating...Position Calibration Mode";
+                Vector2 moveCaliXZ = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+                Vector2 moveCaliY = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+                caliCube.position += new Vector3(moveCaliXZ.x, moveCaliY.y, moveCaliXZ.y) * (Time.deltaTime * 0.1f);
+            }
+            else
+            {
+                log.text = "Rotation Calibration Mode";
+                Vector2 rotateCaliXY = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+                Vector2 rotateCaliZ = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+                    
+                caliCube.rotation *= Quaternion.Euler(rotateCaliXY.y * 10f * Time.deltaTime, rotateCaliXY.x * 10f * Time.deltaTime, rotateCaliZ.x * 10f * Time.deltaTime);
             }
         }
 
@@ -141,7 +194,7 @@ public class QuestUDPReceiver : MonoBehaviour
 
             // Parse x,y,z,qx,qy,qz,qw
             var parts = msg.Split(',');
-            if (parts.Length >= 21
+            if (parts.Length >= 28
                 && float.TryParse(parts[0], out float fingerX)
                 && float.TryParse(parts[1], out float fingerY)
                 && float.TryParse(parts[2], out float fingerZ)
@@ -162,7 +215,15 @@ public class QuestUDPReceiver : MonoBehaviour
                 && float.TryParse(parts[17], out float rightqx)
                 && float.TryParse(parts[18], out float rightqy)
                 && float.TryParse(parts[19], out float rightqz)
-                && float.TryParse(parts[20], out float rightqw))
+                && float.TryParse(parts[20], out float rightqw)
+                && float.TryParse(parts[21], out float caliX)
+                && float.TryParse(parts[22], out float caliY)
+                && float.TryParse(parts[23], out float caliZ)
+                && float.TryParse(parts[24], out float caliqx)
+                && float.TryParse(parts[25], out float caliqy)
+                && float.TryParse(parts[26], out float caliqz)
+                && float.TryParse(parts[27], out float caliqw)
+                )
             {
                 // Store raw Vicon pose
                 lastViconFingerPos = new Vector3(fingerX, fingerY, fingerZ);
@@ -173,12 +234,17 @@ public class QuestUDPReceiver : MonoBehaviour
                 
                 lastViconRightFootPos = new Vector3(rightX, rightY, rightZ);
                 lastViconRightFootRot = new Quaternion(rightqx, rightqy, rightqz, rightqw);
+                
+                lastViconCaliCubePos = new Vector3(caliX, caliY, caliZ);
+                lastViconCaliCubeRot = new Quaternion(caliqx, caliqy, caliqz, caliqw);
 
                 if (fingertipAnchor != null)
                 {
                     if (tracking.vicon)
                     {
-                        ApplyAlignment(alignmentMatrix);
+                        // procustes alignment
+                        //ApplyAlignment(alignmentMatrix);
+                        ApplyAlignment2();
                     }
                 }
             }
@@ -252,6 +318,47 @@ public class QuestUDPReceiver : MonoBehaviour
         }
 
         return KabschSolver.SolveKabsch(sourcePointsPosition, targetPointsPosition);
+    }
+    
+    // Alignment method 2
+    public Matrix4x4 CalculateAlignmentTransform2()
+    {
+        // Vector3 sourcePos = lastViconCaliCubePos;
+        // Quaternion sourceRot = lastViconCaliCubeRot;
+        //
+        // Vector3 targetPos = caliCube.position;
+        // Quaternion targetRot = caliCube.rotation;
+
+        Matrix4x4 viconTransform = Matrix4x4.TRS(lastViconCaliCubePos, lastViconCaliCubeRot, Vector3.one);
+        Matrix4x4 unityTransform = Matrix4x4.TRS(caliCube.position, caliCube.rotation, Vector3.one);
+        var C = new Matrix4x4(
+            new Vector4(  0, 0, -1, 0 ),
+            new Vector4(  0, 1,  0, 0 ),
+            new Vector4( 1, 0,  0, 0 ),
+            new Vector4(  0, 0,  0, 1 )
+        );
+        
+        Matrix4x4 alignmentTransform = C*unityTransform * viconTransform.inverse;
+        
+        Matrix4x4 posOffset = Matrix4x4.TRS(caliCube.position - alignmentTransform.MultiplyPoint3x4(lastViconCaliCubePos), Quaternion.identity, Vector3.one);
+        rotOffset = Quaternion.Inverse(alignmentTransform.rotation*lastViconCaliCubeRot) * caliCube.rotation;
+        alignmentTransform = posOffset * alignmentTransform;
+        //Matrix4x4 alignmentTransform = Matrix4x4.TRS(targetPos, targetRot * Quaternion.Inverse(sourceRot), Vector3.one);
+        return alignmentTransform;
+    }
+    
+    public void ApplyAlignment2()
+    {
+        fingertipAnchor.position = alignmentMatrix.MultiplyPoint3x4(lastViconFingerPos);
+        fingertipAnchor.localPosition += fingerTipOffset;
+        fingertipAnchor.rotation = alignmentMatrix.rotation * lastViconFingerRot* rotOffset;
+        TargetManager.Instance.LFPos = alignmentMatrix.MultiplyPoint3x4(lastViconLeftFootPos);
+        TargetManager.Instance.LFRot = alignmentMatrix.rotation * lastViconLeftFootRot* rotOffset;
+        TargetManager.Instance.RFPos = alignmentMatrix.MultiplyPoint3x4(lastViconRightFootPos);
+        TargetManager.Instance.RFRot = alignmentMatrix.rotation * lastViconRightFootRot* rotOffset;
+        caliCube.gameObject.SetActive(true);
+        caliCube.rotation = alignmentMatrix.rotation * lastViconCaliCubeRot* rotOffset;
+        caliCube.position = alignmentMatrix.MultiplyPoint3x4(lastViconCaliCubePos);
     }
     void OnDisable()
     {

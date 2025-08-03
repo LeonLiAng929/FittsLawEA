@@ -3673,6 +3673,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2080728318}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &363823500 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+  m_PrefabInstance: {fileID: 403870868}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &363823501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 363823500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4fead0a62ec76b479f2b95a6bab9234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObjectName: Test
+  Client: {fileID: 266748311}
 --- !u!1 &366054263
 GameObject:
   m_ObjectHideFlags: 0
@@ -4133,6 +4152,66 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.016699273, y: -0.03636414, z: -0.018954389}
     m_Extent: {x: 0.05463389, y: 0.050220694, z: 0.051451057}
   m_DirtyAABB: 0
+--- !u!1001 &403870868
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.612
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      propertyPath: m_Name
+      value: fingermodel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 363823501}
+  m_SourcePrefab: {fileID: 100100000, guid: b4d6618e2091ffe4d8bb46297ec92075, type: 3}
 --- !u!1 &406681055
 GameObject:
   m_ObjectHideFlags: 0
@@ -4416,7 +4495,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &430655674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4921,6 +5000,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectName: Box
   Client: {fileID: 266748311}
+--- !u!4 &455358964 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 89b24d35a6384dc4bbdc31c7c1db7b94, type: 3}
+  m_PrefabInstance: {fileID: 455358961}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &456426638
 GameObject:
   m_ObjectHideFlags: 0
@@ -18761,6 +18845,7 @@ MonoBehaviour:
   fingerTip: {fileID: 430655678}
   leftFoot: {fileID: 52636315}
   rightFoot: {fileID: 511295907}
+  caliCube: {fileID: 455358964}
 --- !u!4 &1703043491
 Transform:
   m_ObjectHideFlags: 0
@@ -23488,3 +23573,4 @@ SceneRoots:
   - {fileID: 2074640391}
   - {fileID: 1703043491}
   - {fileID: 455358961}
+  - {fileID: 403870868}
