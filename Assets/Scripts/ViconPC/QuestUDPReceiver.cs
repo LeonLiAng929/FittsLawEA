@@ -332,8 +332,8 @@ public class QuestUDPReceiver : MonoBehaviour
         Matrix4x4 viconTransform = Matrix4x4.TRS(lastViconFingerPos, lastViconFingerRot, Vector3.one);
         Matrix4x4 unityTransform = Matrix4x4.TRS(caliCube.position, caliCube.rotation, Vector3.one);
         var C = new Matrix4x4(
-            new Vector4(  0, 0, -1, 0 ),
-            new Vector4(  0, 1,  0, 0 ),
+            new Vector4(  0, -1, 0, 0 ),
+            new Vector4(  0, 0,  -1, 0 ),
             new Vector4( 1, 0,  0, 0 ),
             new Vector4(  0, 0,  0, 1 )
         );
