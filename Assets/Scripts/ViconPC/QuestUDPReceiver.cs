@@ -36,7 +36,8 @@ public class QuestUDPReceiver : MonoBehaviour
 
     
     private Vector3     lastViconFingerPos;
-    private Quaternion  lastViconFingerRot;
+    public Quaternion  lastViconFingerRot;
+    // public Quaternion fingerRotationOffset;
     private Vector3     lastViconLeftFootPos;
     private Quaternion  lastViconLeftFootRot;
     private Vector3     lastViconRightFootPos;
@@ -332,9 +333,9 @@ public class QuestUDPReceiver : MonoBehaviour
         Matrix4x4 viconTransform = Matrix4x4.TRS(lastViconCaliCubePos, lastViconCaliCubeRot, Vector3.one);
         Matrix4x4 unityTransform = Matrix4x4.TRS(caliCube.position, caliCube.rotation, Vector3.one);
         var C = new Matrix4x4(
-            new Vector4(  0, 0, -1, 0 ),
+            new Vector4(  0, 0, 1, 0 ),
             new Vector4(  0, 1,  0, 0 ),
-            new Vector4( 1, 0,  0, 0 ),
+            new Vector4( -1, 0,  0, 0 ),
             new Vector4(  0, 0,  0, 1 )
         );
         
@@ -349,9 +350,11 @@ public class QuestUDPReceiver : MonoBehaviour
     
     public void ApplyAlignment2()
     {
-        fingertipAnchor.position = alignmentMatrix.MultiplyPoint3x4(lastViconFingerPos);
-        fingertipAnchor.localPosition += fingerTipOffset;
-        fingertipAnchor.rotation = alignmentMatrix.rotation * lastViconFingerRot* rotOffset;
+        //fingertipAnchor.localPosition += fingerTipOffset;
+        Quaternion fingerRotVT = alignmentMatrix.rotation * lastViconFingerRot*rotOffset;
+        Vector3 fingerPosVT = alignmentMatrix.MultiplyPoint3x4(lastViconFingerPos);
+        fingertipAnchor.position = fingerPosVT;
+        fingertipAnchor.rotation = fingerRotVT;
         TargetManager.Instance.LFPos = alignmentMatrix.MultiplyPoint3x4(lastViconLeftFootPos);
         TargetManager.Instance.LFRot = alignmentMatrix.rotation * lastViconLeftFootRot* rotOffset;
         TargetManager.Instance.RFPos = alignmentMatrix.MultiplyPoint3x4(lastViconRightFootPos);
