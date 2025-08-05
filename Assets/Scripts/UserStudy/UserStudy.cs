@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -124,8 +125,8 @@ public class
             Mode.TryParse(line[2], out currMode);
             if (line.Length > 3)
             {
-                Calibration.Instance.midPoint = new Vector3(float.Parse(line[3]), float.Parse(line[4]),
-                    float.Parse(line[5]));
+                Calibration.Instance.midPoint = new Vector3(float.Parse(line[4]), float.Parse(line[5]),
+                    float.Parse(line[6]));
             }
             else
             {
@@ -140,25 +141,72 @@ public class
         string fname = "ParticipantRecord.csv";
         string path = Path.Combine(Application.persistentDataPath, fname);
 
-        //using (var writer = new StreamWriter(path, false))
-        using (var writer = new StreamWriter(path, true))
+        List<string> lines = File.Exists(path)
+            ? File.ReadAllLines(path).ToList()
+            : new List<string>();
+        string amendedLine;
+        string newLine;
+        
+        // using (var writer = new StreamWriter(path, true))
+        // {
+        //     //writer.WriteLine("currID,currConditionIndex");
+        //     if (currentConditionIndex == 26)
+        //     {
+        //         currentConditionIndex = 0;
+        //         TargetManager.Instance.ShowFinishText();
+        //         writer.WriteLine($"{currentID + 1},{currentConditionIndex},{currMode},{TargetManager.Instance.tiltingAngle},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
+        //     }
+        //     else
+        //     {
+        //         writer.WriteLine($"{currentID},{currentConditionIndex + 1},{currMode},{TargetManager.Instance.tiltingAngle},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
+        //         if ((currentConditionIndex +1) % 9 == 0)
+        //         { 
+        //             TargetManager.Instance.ShowFinishText();
+        //         }
+        //     }
+        // }
+        if (currentConditionIndex == 26)
         {
-            //writer.WriteLine("currID,currConditionIndex");
-            if (currentConditionIndex == 26)
-            {
-                currentConditionIndex = 0;
-                TargetManager.Instance.ShowFinishText();
-                writer.WriteLine($"{currentID + 1},{currentConditionIndex},{currMode},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
-            }
-            else
-            {
-                writer.WriteLine($"{currentID},{currentConditionIndex + 1},{currMode},{Calibration.Instance.midPoint.x},{Calibration.Instance.midPoint.y},{Calibration.Instance.midPoint.z}");
-                if ((currentConditionIndex +1) % 9 == 0)
-                { 
-                    TargetManager.Instance.ShowFinishText();
-                }
-            }
+            amendedLine = $"{currentID},{currentConditionIndex},{currMode},{TargetManager.Instance.tiltingAngle}," +
+                          $"{Calibration.Instance.midPoint.x}," +
+                          $"{Calibration.Instance.midPoint.y}," +
+                          $"{Calibration.Instance.midPoint.z}";
+            
+            currentConditionIndex = 0;
+            newLine = $"{currentID + 1},{currentConditionIndex},{currMode},{0}," +
+                      $"{Calibration.Instance.midPoint.x}," +
+                      $"{Calibration.Instance.midPoint.y}," +
+                      $"{Calibration.Instance.midPoint.z}";
+            
+            TargetManager.Instance.ShowFinishText();
         }
+        else
+        {
+            
+            amendedLine = $"{currentID},{currentConditionIndex},{currMode},{TargetManager.Instance.tiltingAngle}," +
+                          $"{Calibration.Instance.midPoint.x}," +
+                          $"{Calibration.Instance.midPoint.y}," +
+                          $"{Calibration.Instance.midPoint.z}";
+
+            
+            newLine = $"{currentID},{currentConditionIndex + 1},{currMode},{0}," +
+                      $"{Calibration.Instance.midPoint.x}," +
+                      $"{Calibration.Instance.midPoint.y}," +
+                      $"{Calibration.Instance.midPoint.z}";
+
+            if ((currentConditionIndex + 1) % 9 == 0)
+                TargetManager.Instance.ShowFinishText();
+        }
+        
+        if (lines.Count > 0)
+            lines[lines.Count - 1] = amendedLine;
+        else
+            lines.Add(amendedLine);  
+        
+        lines.Add(newLine);
+
+        
+        File.WriteAllLines(path, lines);
     }
 
     /// <summary>

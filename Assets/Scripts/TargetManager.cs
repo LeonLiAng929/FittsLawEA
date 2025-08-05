@@ -88,6 +88,7 @@ public class TargetManager : MonoBehaviour
     public List<float> selectionOffsets = new List<float>();
     #endregion ForUserStudy
 
+    public float tiltingAngle = 0f;
     public GameObject finishText;
     public AudioSource finishAudio;
     public AudioSource errorAudio;
@@ -236,16 +237,16 @@ public class TargetManager : MonoBehaviour
         {
             if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
             {
-                selectionPositions.Add(touchTip.transform.position);
-                successfulSelection.Add(targets[currentTarget].isSelected);
+                // selectionPositions.Add(touchTip.transform.position);
+                // successfulSelection.Add(targets[currentTarget].isSelected);
                 if (!targets[currentTarget].isSelected)
                 {
                     errorAudio.Play();
                 }
-                selectionQuaternions.Add(indexDistalTip.rotation);
-                selectionStepCount.Add(currStepCount);
-                selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
-                timestamp.Add(cumulativeTime);
+                // selectionQuaternions.Add(indexDistalTip.rotation);
+                // selectionStepCount.Add(currStepCount);
+                // selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
+                // timestamp.Add(cumulativeTime);
                 ProceedTrial();
                 if (!trialStarted)
                 {
@@ -253,6 +254,13 @@ public class TargetManager : MonoBehaviour
                 }
                 else
                 {
+                    targetPositions.Add(targets[currentTarget].transform.position);
+                    selectionPositions.Add(touchTip.transform.position);
+                    successfulSelection.Add(targets[currentTarget].isSelected);
+                    selectionQuaternions.Add(indexDistalTip.rotation);
+                    selectionStepCount.Add(currStepCount);
+                    selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
+                    timestamp.Add(cumulativeTime);
                     movementTime.Add(timer);
                     timer = 0;
                 }
@@ -347,7 +355,8 @@ public class TargetManager : MonoBehaviour
         }
         
         targets[currentTarget].OnTargetSelect();
-        targetPositions.Add(targets[currentTarget].transform.position);
+        //if(trialStarted)
+            
     }
 
     private void FixedUpdate()
@@ -406,6 +415,7 @@ public class TargetManager : MonoBehaviour
             
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
+            tiltingAngle = 180 - Vector3.Angle(Vector3.forward,targetContainer.forward);
         }
         
         if (OVRInput.GetDown(OVRInput.RawButton.X))
