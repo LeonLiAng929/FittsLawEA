@@ -24,7 +24,7 @@ public class TargetBehaviour : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.name == "touchtip")
+        if (other.gameObject.name == "touchtipsphere")
         {
             isSelected = true;
             
@@ -35,7 +35,7 @@ public class TargetBehaviour : MonoBehaviour
     
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.name == "touchtip")
+        if (other.gameObject.name == "touchtipsphere")
         {
             isSelected = false;
             outline.SetActive(false);

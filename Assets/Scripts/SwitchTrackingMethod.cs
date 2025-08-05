@@ -8,7 +8,6 @@ public class SwitchTrackingMethod : MonoBehaviour
     public Transform headsetFingerTipTrans;
     public Transform viconFingerTipTrans;
     public Transform anchor;
-    public Transform fingertipAnchor;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

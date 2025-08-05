@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using HMDUtils;
 using Meta.XR.MRUtilityKit.SceneDecorator;
 using Oculus.Interaction;
 using Oculus.Platform.Models;
@@ -50,11 +51,13 @@ public class TargetManager : MonoBehaviour
     
     public List<TargetBehaviour> targets = new List<TargetBehaviour>();
     public int currentTarget = 0;
+    public int prevTarget;
     public bool forward = true; //true: currTarget + 6, false: currTarget - 5
     public bool trialStarted = false;
     public bool trialEnded = false;
     public float timer = 0;
     public GameObject touchTip;
+    public GameObject touchTipSphere;
     public Transform indexDistalTip;
    
     
@@ -247,6 +250,7 @@ public class TargetManager : MonoBehaviour
                 // selectionStepCount.Add(currStepCount);
                 // selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
                 // timestamp.Add(cumulativeTime);
+                //Debug.Log(currentTarget.ToString());
                 ProceedTrial();
                 if (!trialStarted)
                 {
@@ -254,12 +258,18 @@ public class TargetManager : MonoBehaviour
                 }
                 else
                 {
-                    targetPositions.Add(targets[currentTarget].transform.position);
-                    selectionPositions.Add(touchTip.transform.position);
-                    successfulSelection.Add(targets[currentTarget].isSelected);
+                    targetPositions.Add(targets[prevTarget].transform.position);
+                    selectionPositions.Add(touchTipSphere.transform.position);
+                    successfulSelection.Add(targets[prevTarget].isSelected);
                     selectionQuaternions.Add(indexDistalTip.rotation);
                     selectionStepCount.Add(currStepCount);
-                    selectionOffsets.Add(Vector3.Distance(touchTip.transform.position, targets[currentTarget].transform.position));
+                    float rA = touchTipSphere.GetComponent<SphereCollider>().radius * touchTipSphere.transform.lossyScale.x;
+                    float rB = targets[prevTarget].GetComponent<SphereCollider>().radius * targets[prevTarget].transform.lossyScale.x;
+                    float centerDist = Vector3.Distance(touchTipSphere.transform.position, targets[prevTarget].transform.position);
+                    float surfaceDist = centerDist - (rA+ rB);
+                    surfaceDist = Mathf.Max(0, surfaceDist);
+                    //selectionOffsets.Add(Vector3.Distance(touchTipSphere.transform.position, targets[currentTarget].transform.position));
+                    selectionOffsets.Add(surfaceDist);
                     timestamp.Add(cumulativeTime);
                     movementTime.Add(timer);
                     timer = 0;
@@ -333,6 +343,7 @@ public class TargetManager : MonoBehaviour
     public void ProceedTrial()
     {
         targets[currentTarget].OnTargetDeselect();
+        prevTarget = currentTarget;
         if (trialStarted && currentTarget == 0)
         {
             EndTrial();
@@ -364,7 +375,7 @@ public class TargetManager : MonoBehaviour
         if (trialStarted)
         {
             rawQuaternions.Add(indexDistalTip.rotation);
-            rawPositions.Add(touchTip.transform.position);
+            rawPositions.Add(touchTipSphere.transform.position);
             rawLFPositions.Add(LFPos);
             rawRFPositions.Add(RFPos);
             rawLFQuaternions.Add(LFRot);
@@ -491,6 +502,7 @@ public class TargetManager : MonoBehaviour
             GameObject target = Instantiate(prefab, targetContainer);
             target.transform.localPosition = newPos;
             target.GetComponent<TargetBehaviour>().targetID = i;
+            target.name = i.ToString();
             targets.Add(target.GetComponent<TargetBehaviour>());
             
             
