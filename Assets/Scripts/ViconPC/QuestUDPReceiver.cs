@@ -60,7 +60,7 @@ public class QuestUDPReceiver : MonoBehaviour
     public Transform caliCube;
     private CaliMovementControl movementControl = CaliMovementControl.Position;
     private Quaternion rotOffset;
-    public Vector3 fingerTipOffset;
+    
 
     private enum CaliMovementControl
     {
