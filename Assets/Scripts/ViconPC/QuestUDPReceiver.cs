@@ -18,7 +18,7 @@ public class QuestUDPReceiver : MonoBehaviour
 
     [Header("Target to Drive")]
     public Transform fingertipAnchor;
-
+    public Transform controllerTip;
     [Header("Alignment Offsets (auto-updated)")]
     [Tooltip("Position offset to align Vicon → Unity")]
     public Vector3 positionOffset;
@@ -44,6 +44,8 @@ public class QuestUDPReceiver : MonoBehaviour
     private Quaternion  lastViconRightFootRot;
     private Vector3     lastViconCaliCubePos;
     private Quaternion  lastViconCaliCubeRot;
+    private Vector3 lastViconControllerPos;
+    private Quaternion lastViconControllerRot;
 
     public TMP_Text log;
     // procustes alignment
@@ -142,7 +144,7 @@ public class QuestUDPReceiver : MonoBehaviour
                     calibrationPointIndex = 0;
                     // alignmentMatrix = CalculateAlignmentTransform2();
                     // caliCube.gameObject.SetActive(false);
-                    log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
+                    log.text = "CalibrationCleared " + $"[Quest Receiver] Listening on port {listenPort}";
             }
             else
             {
@@ -217,13 +219,13 @@ public class QuestUDPReceiver : MonoBehaviour
                 && float.TryParse(parts[18], out float rightqy)
                 && float.TryParse(parts[19], out float rightqz)
                 && float.TryParse(parts[20], out float rightqw)
-                && float.TryParse(parts[21], out float caliX)
-                && float.TryParse(parts[22], out float caliY)
-                && float.TryParse(parts[23], out float caliZ)
-                && float.TryParse(parts[24], out float caliqx)
-                && float.TryParse(parts[25], out float caliqy)
-                && float.TryParse(parts[26], out float caliqz)
-                && float.TryParse(parts[27], out float caliqw)
+                && float.TryParse(parts[21], out float controllerX)
+                && float.TryParse(parts[22], out float controllerY)
+                && float.TryParse(parts[23], out float controllerZ)
+                && float.TryParse(parts[24], out float controllerqx)
+                && float.TryParse(parts[25], out float controllerqy)
+                && float.TryParse(parts[26], out float controllerqz)
+                && float.TryParse(parts[27], out float controllerqw)
                 )
             {
                 // Store raw Vicon pose
@@ -236,8 +238,10 @@ public class QuestUDPReceiver : MonoBehaviour
                 lastViconRightFootPos = new Vector3(rightX, rightY, rightZ);
                 lastViconRightFootRot = new Quaternion(rightqx, rightqy, rightqz, rightqw);
                 
-                lastViconCaliCubePos = new Vector3(caliX, caliY, caliZ);
-                lastViconCaliCubeRot = new Quaternion(caliqx, caliqy, caliqz, caliqw);
+                // lastViconCaliCubePos = new Vector3(caliX, caliY, caliZ);
+                // lastViconCaliCubeRot = new Quaternion(caliqx, caliqy, caliqz, caliqw);
+                lastViconControllerPos = new Vector3(controllerX, controllerY, controllerZ);
+                lastViconControllerRot = new Quaternion(controllerqx, controllerqy, controllerqz, controllerqw);
 
                 if (fingertipAnchor != null)
                 {
@@ -266,14 +270,13 @@ public class QuestUDPReceiver : MonoBehaviour
 
     public void AddTargetPoint()
     {
-        sourcePoints.Add(lastViconFingerPos);
-        targetPoints.Add(fingertipAnchor.position);
+        // sourcePoints.Add(lastViconControllerPos);
+        // targetPoints.Add(fingertipAnchor.position);
         //calibrationPoints[calibrationPointIndex].OnTargetDeselect();
-        calibrationPointIndex += 1;
         if (calibrationPointIndex < 16)
         {
-            sourcePoints.Add(lastViconFingerPos);
-            targetPoints.Add(fingertipAnchor.position);
+            sourcePoints.Add(lastViconControllerPos);
+            targetPoints.Add(controllerTip.position);
             //log.text = $"Calibrating...{calibrationPointIndex}, " + $"[Quest Receiver] Listening on port {listenPort}";
         } //calibrationPoints[calibrationPointIndex].OnTargetSelect();
         else
@@ -286,6 +289,7 @@ public class QuestUDPReceiver : MonoBehaviour
             //calibrationContainer.gameObject.SetActive(false);
             //SaveOriginalPosition(); 
         }
+        calibrationPointIndex += 1;
     }
     
     private float CalculateCalibrationDistance()

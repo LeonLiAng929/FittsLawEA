@@ -18,6 +18,7 @@ public class PCUDPSender : MonoBehaviour
     public Transform leftFoot;
     public Transform rightFoot;
     public Transform caliCube;
+    public Transform controllerTip;
     
     void Start()
     {
@@ -39,8 +40,11 @@ public class PCUDPSender : MonoBehaviour
         Vector3    rightP = rightFoot.position;
         Quaternion rightR = rightFoot.rotation;
         
-        Vector3   caliP = caliCube.position;
-        Quaternion caliR = caliCube.rotation;
+        // Vector3   caliP = caliCube.position;
+        // Quaternion caliR = caliCube.rotation;
+        
+        Vector3  controllerP = controllerTip.position;
+        Quaternion controllerR = controllerTip.rotation;
 
         // Format as CSV: x,y,z,qx,qy,qz,qw
         string msg = $"{fingerP.x:F3},{fingerP.y:F3},{fingerP.z:F3}," +
@@ -49,8 +53,10 @@ public class PCUDPSender : MonoBehaviour
                      $"{leftR.x:F3},{leftR.y:F3},{leftR.z:F3},{leftR.w:F3},"+
                      $"{rightP.x:F3},{rightP.y:F3},{rightP.z:F3}," +
                      $"{rightR.x:F3},{rightR.y:F3},{rightR.z:F3},{rightR.w:F3}," +
-                     $"{caliP.x:F3},{caliP.y:F3},{caliP.z:F3}," +
-                     $"{caliR.x:F3},{caliR.y:F3},{caliR.z:F3},{caliR.w:F3}";
+                     // $"{caliP.x:F3},{caliP.y:F3},{caliP.z:F3}," +
+                     // $"{caliR.x:F3},{caliR.y:F3},{caliR.z:F3},{caliR.w:F3}," +
+                     $"{controllerP.x:F3},{controllerP.y:F3},{controllerP.z:F3}," +
+                     $"{controllerR.x:F3},{controllerR.y:F3},{controllerR.z:F3},{controllerR.w:F3}";
 
         byte[] data = Encoding.UTF8.GetBytes(msg);
         udpClient.Send(data, data.Length, remoteEP);
