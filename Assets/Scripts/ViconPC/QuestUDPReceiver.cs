@@ -137,51 +137,51 @@ public class QuestUDPReceiver : MonoBehaviour
             if (!calibrationVicon)
             {
                 // Procrustes alignment
-                    // sourcePoints.Clear();
-                    // targetPoints.Clear();
-                    // calibrationPointIndex = 0;
-                    alignmentMatrix = CalculateAlignmentTransform2();
-                    caliCube.gameObject.SetActive(false);
+                     sourcePoints.Clear();
+                     targetPoints.Clear();
+                     calibrationPointIndex = 0;
+                    // alignmentMatrix = CalculateAlignmentTransform2();
+                    // caliCube.gameObject.SetActive(false);
                     log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
             }
             else
             {
                 log.text = "Calibrating...Position Calibration Mode";
-                caliCube.gameObject.SetActive(true);
+                //caliCube.gameObject.SetActive(true);
                 // Procrustes alignment
-                //SpawnCalibrationPoint();
+                SpawnCalibrationPoint();
             }
         }
 
         if (calibrationVicon)
         {
             // Procrustes alignment
-            // if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
-            // {
-            //     log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
-            //     AddTargetPoint();
-            // }
-            
-            // alignemnt method 2
             if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
             {
-                SwitchMovement();
+                log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
+                AddTargetPoint();
             }
-            if(movementControl == CaliMovementControl.Position)
-            {
-                log.text = "Calibrating...Position Calibration Mode";
-                Vector2 moveCaliXZ = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-                Vector2 moveCaliY = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-                caliCube.position += new Vector3(moveCaliXZ.x, moveCaliY.y, moveCaliXZ.y) * (Time.deltaTime * 0.1f);
-            }
-            else
-            {
-                log.text = "Rotation Calibration Mode";
-                Vector2 rotateCaliXY = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-                Vector2 rotateCaliZ = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-                    
-                caliCube.rotation *= Quaternion.Euler(rotateCaliXY.y * 10f * Time.deltaTime, rotateCaliXY.x * 10f * Time.deltaTime, rotateCaliZ.x * 10f * Time.deltaTime);
-            }
+            
+            // alignemnt method 2
+            // if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
+            // {
+            //     SwitchMovement();
+            // }
+            // if(movementControl == CaliMovementControl.Position)
+            // {
+            //     log.text = "Calibrating...Position Calibration Mode";
+            //     Vector2 moveCaliXZ = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+            //     Vector2 moveCaliY = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+            //     caliCube.position += new Vector3(moveCaliXZ.x, moveCaliY.y, moveCaliXZ.y) * (Time.deltaTime * 0.1f);
+            // }
+            // else
+            // {
+            //     log.text = "Rotation Calibration Mode";
+            //     Vector2 rotateCaliXY = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+            //     Vector2 rotateCaliZ = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+            //         
+            //     caliCube.rotation *= Quaternion.Euler(rotateCaliXY.y * 10f * Time.deltaTime, rotateCaliXY.x * 10f * Time.deltaTime, rotateCaliZ.x * 10f * Time.deltaTime);
+            // }
         }
 
         if (msgReady)
@@ -244,8 +244,8 @@ public class QuestUDPReceiver : MonoBehaviour
                     if (tracking.vicon)
                     {
                         // procustes alignment
-                        //ApplyAlignment(alignmentMatrix);
-                        ApplyAlignment2();
+                        ApplyAlignment(alignmentMatrix);
+                        //ApplyAlignment2();
                     }
                 }
             }
@@ -301,6 +301,8 @@ public class QuestUDPReceiver : MonoBehaviour
     {
         fingertipAnchor.position = alignmentTransform.MultiplyPoint3x4(lastViconFingerPos);
         fingertipAnchor.rotation = alignmentTransform.rotation * lastViconFingerRot;
+        fingertipAnchor.Rotate(Vector3.up, -90f);
+        fingertipAnchor.Rotate(Vector3.right, -90f);
         TargetManager.Instance.LFPos = alignmentTransform.MultiplyPoint3x4(lastViconLeftFootPos);
         TargetManager.Instance.LFRot = alignmentTransform.rotation * lastViconLeftFootRot;
         TargetManager.Instance.RFPos = alignmentTransform.MultiplyPoint3x4(lastViconRightFootPos);
