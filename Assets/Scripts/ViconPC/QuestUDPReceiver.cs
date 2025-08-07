@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net;
@@ -44,6 +45,8 @@ public class QuestUDPReceiver : MonoBehaviour
     private Quaternion  lastViconRightFootRot;
     private Vector3     lastViconCaliCubePos;
     private Quaternion  lastViconCaliCubeRot;
+    private Vector3 lastViconHeadsetPos;
+    private Quaternion lastViconHeadsetRot;
 
     public TMP_Text log;
     // procustes alignment
@@ -195,37 +198,44 @@ public class QuestUDPReceiver : MonoBehaviour
 
             // Parse x,y,z,qx,qy,qz,qw
             var parts = msg.Split(',');
-            if (parts.Length >= 28
-                && float.TryParse(parts[0], out float fingerX)
-                && float.TryParse(parts[1], out float fingerY)
-                && float.TryParse(parts[2], out float fingerZ)
-                && float.TryParse(parts[3], out float fingerqx)
-                && float.TryParse(parts[4], out float fingerqy)
-                && float.TryParse(parts[5], out float fingerqz)
-                && float.TryParse(parts[6], out float fingerqw)
-                && float.TryParse(parts[7], out float leftX)
-                && float.TryParse(parts[8], out float leftY)
-                && float.TryParse(parts[9], out float leftZ)
-                && float.TryParse(parts[10], out float leftqx)
-                && float.TryParse(parts[11], out float leftqy)
-                && float.TryParse(parts[12], out float leftqz)
-                && float.TryParse(parts[13], out float leftqw)
-                && float.TryParse(parts[14], out float rightX)
-                && float.TryParse(parts[15], out float rightY)
-                && float.TryParse(parts[16], out float rightZ)
-                && float.TryParse(parts[17], out float rightqx)
-                && float.TryParse(parts[18], out float rightqy)
-                && float.TryParse(parts[19], out float rightqz)
-                && float.TryParse(parts[20], out float rightqw)
-                && float.TryParse(parts[21], out float caliX)
-                && float.TryParse(parts[22], out float caliY)
-                && float.TryParse(parts[23], out float caliZ)
-                && float.TryParse(parts[24], out float caliqx)
-                && float.TryParse(parts[25], out float caliqy)
-                && float.TryParse(parts[26], out float caliqz)
-                && float.TryParse(parts[27], out float caliqw)
-                )
-            {
+            // if (parts.Length >= 34
+            float.TryParse(parts[0], out float fingerX);
+            float.TryParse(parts[1], out float fingerY);
+            float.TryParse(parts[2], out float fingerZ);
+            float.TryParse(parts[3], out float fingerqx);
+            float.TryParse(parts[4], out float fingerqy);
+            float.TryParse(parts[5], out float fingerqz);
+            float.TryParse(parts[6], out float fingerqw);
+            float.TryParse(parts[7], out float leftX);
+            float.TryParse(parts[8], out float leftY);
+            float.TryParse(parts[9], out float leftZ);
+            float.TryParse(parts[10], out float leftqx);
+            float.TryParse(parts[11], out float leftqy);
+            float.TryParse(parts[12], out float leftqz);
+            float.TryParse(parts[13], out float leftqw);
+            float.TryParse(parts[14], out float rightX);
+            float.TryParse(parts[15], out float rightY);
+            float.TryParse(parts[16], out float rightZ);
+            float.TryParse(parts[17], out float rightqx);
+            float.TryParse(parts[18], out float rightqy);
+            float.TryParse(parts[19], out float rightqz);
+            float.TryParse(parts[20], out float rightqw);
+            float.TryParse(parts[21], out float caliX);
+            float.TryParse(parts[22], out float caliY);
+            float.TryParse(parts[23], out float caliZ);
+            float.TryParse(parts[24], out float caliqx);
+            float.TryParse(parts[25], out float caliqy);
+            float.TryParse(parts[26], out float caliqz);
+            float.TryParse(parts[27], out float caliqw);
+            float.TryParse(parts[28], out float headsetX);
+            float.TryParse(parts[29], out float headsetY);
+            float.TryParse(parts[30], out float headsetZ);
+            float.TryParse(parts[31], out float headsetqx);
+            float.TryParse(parts[32], out float headsetqy);
+            float.TryParse(parts[33], out float headsetqz);
+                 float.TryParse(parts[34], out float headsetqw);
+                
+            // {
                 // Store raw Vicon pose
                 lastViconFingerPos = new Vector3(fingerX, fingerY, fingerZ);
                 lastViconFingerRot = new Quaternion(fingerqx, fingerqy, fingerqz, fingerqw);
@@ -238,26 +248,33 @@ public class QuestUDPReceiver : MonoBehaviour
                 
                 lastViconCaliCubePos = new Vector3(caliX, caliY, caliZ);
                 lastViconCaliCubeRot = new Quaternion(caliqx, caliqy, caliqz, caliqw);
+                
+                lastViconHeadsetPos = new Vector3(headsetX, headsetY, headsetZ);
+                lastViconHeadsetRot = new Quaternion(headsetqx, headsetqy, headsetqz, headsetqw);
 
                 if (fingertipAnchor != null)
                 {
-                    if (tracking.vicon)
-                    {
-                        // procustes alignment
-                        //ApplyAlignment(alignmentMatrix);
+                     if (tracking.vicon)
+                     {
+                        //  procustes alignment
+                        // ApplyAlignment(alignmentMatrix);
                         ApplyAlignment2();
                     }
                 }
-            }
-            else
-            {
-                Debug.LogWarning($"[Quest Receiver] Bad msg: {msg}");
-                log.text = $"[Quest Receiver] Bad msg: {msg}";
-            }
+            // }
+            // else
+            // {
+            //     Debug.LogWarning($"[Quest Receiver] Bad msg: {msg}");
+            //     log.text = $"[Quest Receiver] Bad msg: {msg}";
+            // }
         }
     }
 
-    
+    private void LateUpdate()
+    {
+        ApplyAlignment2();
+    }
+
     public void CalibrateOffset()
     {
         
@@ -351,17 +368,19 @@ public class QuestUDPReceiver : MonoBehaviour
     public void ApplyAlignment2()
     {
         //fingertipAnchor.localPosition += fingerTipOffset;
-        Quaternion fingerRotVT = alignmentMatrix.rotation * lastViconFingerRot*rotOffset;
-        Vector3 fingerPosVT = alignmentMatrix.MultiplyPoint3x4(lastViconFingerPos);
+        Quaternion fingerRotVT = lastViconFingerRot;
+        Vector3 fingerPosVT = lastViconFingerPos;
         fingertipAnchor.position = fingerPosVT;
         fingertipAnchor.rotation = fingerRotVT;
-        TargetManager.Instance.LFPos = alignmentMatrix.MultiplyPoint3x4(lastViconLeftFootPos);
-        TargetManager.Instance.LFRot = alignmentMatrix.rotation * lastViconLeftFootRot* rotOffset;
-        TargetManager.Instance.RFPos = alignmentMatrix.MultiplyPoint3x4(lastViconRightFootPos);
-        TargetManager.Instance.RFRot = alignmentMatrix.rotation * lastViconRightFootRot* rotOffset;
+        TargetManager.Instance.LFPos = lastViconLeftFootPos;
+        TargetManager.Instance.LFRot = lastViconLeftFootRot;
+        TargetManager.Instance.RFPos = lastViconRightFootPos;
+        TargetManager.Instance.RFRot = lastViconRightFootRot;
         caliCube.gameObject.SetActive(true);
         caliCube.rotation = alignmentMatrix.rotation * lastViconCaliCubeRot* rotOffset;
         caliCube.position = alignmentMatrix.MultiplyPoint3x4(lastViconCaliCubePos);
+        TargetManager.Instance.CenterCamera.position = lastViconHeadsetPos;
+        TargetManager.Instance.CenterCamera.rotation = lastViconHeadsetRot;
     }
     void OnDisable()
     {
