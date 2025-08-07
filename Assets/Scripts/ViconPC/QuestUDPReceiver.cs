@@ -85,16 +85,16 @@ public class QuestUDPReceiver : MonoBehaviour
         targetPoints.Clear();
         calibrationPoints.Clear();
         calibrationPointIndex = 0;
-        calibrationContainer.gameObject.SetActive(true);
-        Vector3 midpoint = Calibration.Instance.midPoint;
-        midpoint.y = TargetManager.Instance.CenterCamera.position.y;// chest level
-        calibrationContainer.position = midpoint- new Vector3(0,.25f,-.15f);
-        foreach (TargetBehaviour point in calibrationContainer.GetComponentsInChildren<TargetBehaviour>())
-        {
-            targetPoints.Add(point.transform.position);
-            calibrationPoints.Add(point);
-        }
-        calibrationPoints[calibrationPointIndex].OnTargetSelect();
+        // calibrationContainer.gameObject.SetActive(true);
+        // Vector3 midpoint = Calibration.Instance.midPoint;
+        // midpoint.y = TargetManager.Instance.CenterCamera.position.y;// chest level
+        // calibrationContainer.position = midpoint- new Vector3(0,.25f,-.15f);
+        // foreach (TargetBehaviour point in calibrationContainer.GetComponentsInChildren<TargetBehaviour>())
+        // {
+        //     targetPoints.Add(point.transform.position);
+        //     calibrationPoints.Add(point);
+        // }
+        // calibrationPoints[calibrationPointIndex].OnTargetSelect();
     }
 
     void Start()
@@ -137,17 +137,17 @@ public class QuestUDPReceiver : MonoBehaviour
             if (!calibrationVicon)
             {
                 // Procrustes alignment
-                    // sourcePoints.Clear();
-                    // targetPoints.Clear();
-                    // calibrationPointIndex = 0;
-                    alignmentMatrix = CalculateAlignmentTransform2();
-                    caliCube.gameObject.SetActive(false);
+                    sourcePoints.Clear();
+                    targetPoints.Clear();
+                    calibrationPointIndex = 0;
+                    // alignmentMatrix = CalculateAlignmentTransform2();
+                    // caliCube.gameObject.SetActive(false);
                     log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
             }
             else
             {
                 log.text = "Calibrating...Position Calibration Mode";
-                caliCube.gameObject.SetActive(true);
+                //caliCube.gameObject.SetActive(true);
                 // Procrustes alignment
                 //SpawnCalibrationPoint();
             }
@@ -156,32 +156,32 @@ public class QuestUDPReceiver : MonoBehaviour
         if (calibrationVicon)
         {
             // Procrustes alignment
-            // if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
-            // {
-            //     log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
-            //     AddTargetPoint();
-            // }
-            
-            // alignemnt method 2
             if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
             {
-                SwitchMovement();
+                log.text = "Calibrating..."+ calibrationPointIndex.ToString() + $" [Quest Receiver] Listening on port {listenPort}";
+                AddTargetPoint();
             }
-            if(movementControl == CaliMovementControl.Position)
-            {
-                log.text = "Calibrating...Position Calibration Mode";
-                Vector2 moveCaliXZ = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-                Vector2 moveCaliY = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-                caliCube.position += new Vector3(moveCaliXZ.x, moveCaliY.y, moveCaliXZ.y) * (Time.deltaTime * 0.1f);
-            }
-            else
-            {
-                log.text = "Rotation Calibration Mode";
-                Vector2 rotateCaliXY = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-                Vector2 rotateCaliZ = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-                    
-                caliCube.rotation *= Quaternion.Euler(rotateCaliXY.y * 10f * Time.deltaTime, rotateCaliXY.x * 10f * Time.deltaTime, rotateCaliZ.x * 10f * Time.deltaTime);
-            }
+            
+            // alignemnt method 2
+            // if (OVRInput.GetDown(OVRInput.RawButton.RHandTrigger))
+            // {
+            //     SwitchMovement();
+            // }
+            // if(movementControl == CaliMovementControl.Position)
+            // {
+            //     log.text = "Calibrating...Position Calibration Mode";
+            //     Vector2 moveCaliXZ = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+            //     Vector2 moveCaliY = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+            //     caliCube.position += new Vector3(moveCaliXZ.x, moveCaliY.y, moveCaliXZ.y) * (Time.deltaTime * 0.1f);
+            // }
+            // else
+            // {
+            //     log.text = "Rotation Calibration Mode";
+            //     Vector2 rotateCaliXY = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+            //     Vector2 rotateCaliZ = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
+            //         
+            //     caliCube.rotation *= Quaternion.Euler(rotateCaliXY.y * 10f * Time.deltaTime, rotateCaliXY.x * 10f * Time.deltaTime, rotateCaliZ.x * 10f * Time.deltaTime);
+            // }
         }
 
         if (msgReady)
@@ -244,8 +244,8 @@ public class QuestUDPReceiver : MonoBehaviour
                     if (tracking.vicon)
                     {
                         // procustes alignment
-                        //ApplyAlignment(alignmentMatrix);
-                        ApplyAlignment2();
+                        ApplyAlignment(alignmentMatrix);
+                        //ApplyAlignment2();
                     }
                 }
             }
@@ -267,11 +267,15 @@ public class QuestUDPReceiver : MonoBehaviour
     public void AddTargetPoint()
     {
         sourcePoints.Add(lastViconFingerPos);
-        //targetPoints.Add(fingertipAnchor.position);
-        calibrationPoints[calibrationPointIndex].OnTargetDeselect();
+        targetPoints.Add(fingertipAnchor.position);
+        //calibrationPoints[calibrationPointIndex].OnTargetDeselect();
         calibrationPointIndex += 1;
-        if (calibrationPointIndex < targetPoints.Count)
-		    calibrationPoints[calibrationPointIndex].OnTargetSelect();
+        if (calibrationPointIndex < 16)
+        {
+            sourcePoints.Add(lastViconFingerPos);
+            targetPoints.Add(fingertipAnchor.position);
+            //log.text = $"Calibrating...{calibrationPointIndex}, " + $"[Quest Receiver] Listening on port {listenPort}";
+        } //calibrationPoints[calibrationPointIndex].OnTargetSelect();
         else
         {
             //calibrationPointIndex = 0;
@@ -279,7 +283,7 @@ public class QuestUDPReceiver : MonoBehaviour
             //ApplyAlignment(alignmentTransform);
             calibrationDistanceError = CalculateCalibrationDistance();
             log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
-            calibrationContainer.gameObject.SetActive(false);
+            //calibrationContainer.gameObject.SetActive(false);
             //SaveOriginalPosition(); 
         }
     }
@@ -299,8 +303,11 @@ public class QuestUDPReceiver : MonoBehaviour
 
     public void ApplyAlignment(Matrix4x4 alignmentTransform)
     {
+        
         fingertipAnchor.position = alignmentTransform.MultiplyPoint3x4(lastViconFingerPos);
         fingertipAnchor.rotation = alignmentTransform.rotation * lastViconFingerRot;
+        fingertipAnchor.Rotate(Vector3.up, -90);
+        fingertipAnchor.Rotate(Vector3.right, -90);
         TargetManager.Instance.LFPos = alignmentTransform.MultiplyPoint3x4(lastViconLeftFootPos);
         TargetManager.Instance.LFRot = alignmentTransform.rotation * lastViconLeftFootRot;
         TargetManager.Instance.RFPos = alignmentTransform.MultiplyPoint3x4(lastViconRightFootPos);
