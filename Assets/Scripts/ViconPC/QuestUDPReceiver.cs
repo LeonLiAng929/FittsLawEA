@@ -273,7 +273,7 @@ public class QuestUDPReceiver : MonoBehaviour
         // sourcePoints.Add(lastViconControllerPos);
         // targetPoints.Add(fingertipAnchor.position);
         //calibrationPoints[calibrationPointIndex].OnTargetDeselect();
-        if (calibrationPointIndex < 16)
+        if (calibrationPointIndex < 4)
         {
             sourcePoints.Add(lastViconControllerPos);
             targetPoints.Add(controllerTip.position);
