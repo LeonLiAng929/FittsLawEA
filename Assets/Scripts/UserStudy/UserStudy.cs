@@ -111,26 +111,73 @@ public class
         string fname = "ParticipantRecord.csv";
         string path = Path.Combine(Application.persistentDataPath, fname);
 
-        using (var reader = new System.IO.StreamReader(path))
-        {
-            reader.ReadLine();
-            string[] line = new string[] { };
-            while (!reader.EndOfStream)
-            {
-                line = reader.ReadLine().Split(',');
-            }
+        //if path exists, read the last line, else, create a new file with header currID,currConditionIndex,currMode,Tilting Angle,
+        // then set currentID to 1, currentConditionIndex to 0, currMode to Regular, and Calibration.Instance.midPoint to Vector3.zero
+        
 
-            currentID = int.Parse(line[0]);
-            currentConditionIndex = int.Parse(line[1]);
-            Mode.TryParse(line[2], out currMode);
-            if (line.Length > 3)
+        // using (var reader = new System.IO.StreamReader(path))
+        // {
+        //     reader.ReadLine();
+        //     string[] line = new string[] { };
+        //     while (!reader.EndOfStream)
+        //     {
+        //         line = reader.ReadLine().Split(',');
+        //     }
+        //
+        //     currentID = int.Parse(line[0]);
+        //     currentConditionIndex = int.Parse(line[1]);
+        //     Mode.TryParse(line[2], out currMode);
+        //     if (line.Length > 3)
+        //     {
+        //         Calibration.Instance.midPoint = new Vector3(float.Parse(line[4]), float.Parse(line[5]),
+        //             float.Parse(line[6]));
+        //     }
+        //     else
+        //     {
+        //         Calibration.Instance.midPoint = Vector3.zero;
+        //     }
+        // }
+        
+        if (File.Exists(path))
+        {
+            using (var reader = new System.IO.StreamReader(path))
             {
-                Calibration.Instance.midPoint = new Vector3(float.Parse(line[4]), float.Parse(line[5]),
-                    float.Parse(line[6]));
+                reader.ReadLine(); // Skip the header line
+                string[] line = new string[] { };
+                while (!reader.EndOfStream)
+                {
+                    line = reader.ReadLine().Split(',');
+                }
+
+                currentID = int.Parse(line[0]);
+                currentConditionIndex = int.Parse(line[1]);
+                Mode.TryParse(line[2], out currMode);
+
+                if (line.Length > 3)
+                {
+                    Calibration.Instance.midPoint = new Vector3(
+                        float.Parse(line[4]),
+                        float.Parse(line[5]),
+                        float.Parse(line[6])
+                    );
+                }
+                else
+                {
+                    Calibration.Instance.midPoint = Vector3.zero;
+                }
             }
-            else
+        }
+        else
+        {
+            using (var writer = new StreamWriter(path))
             {
+                writer.WriteLine("currID,currConditionIndex,currMode,TiltingAngle,MidPointX,MidPointY,MidPointZ");
+                currentID = 1;
+                currentConditionIndex = 0;
+                currMode = Mode.Regular;
                 Calibration.Instance.midPoint = Vector3.zero;
+
+                writer.WriteLine($"{currentID},{currentConditionIndex},{currMode},0,0,0,0");
             }
         }
     }

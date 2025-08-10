@@ -103,7 +103,7 @@ public class TargetManager : MonoBehaviour
     private float minSeparationThreshold = 0.3f;
     private float minStepInterval = 0.2f;
     private float lastStepTime   = -Mathf.Infinity;
-    public TMP_Text TestText;
+    //public TMP_Text TestText;
     private void Awake()
     {
         Instance = this;
@@ -410,7 +410,7 @@ public class TargetManager : MonoBehaviour
                     prevDerivative = derivative;
                     prevFeetDistance = d;
                     Debug.Log(currStepCount.ToString() + " distance: "+d.ToString("F2") + " derivative: " + derivative.ToString("F2"));
-                    TestText.text = currStepCount.ToString() + " distance: " + d.ToString("F2") + " derivative: " +
+                    //TestText.text = currStepCount.ToString() + " distance: " + d.ToString("F2") + " derivative: " +
                                     derivative.ToString("F2");
                 }
             }

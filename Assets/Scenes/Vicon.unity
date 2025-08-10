@@ -26553,7 +26553,6 @@ MonoBehaviour:
   LFRot: {x: 0, y: 0, z: 0, w: 0}
   RFPos: {x: 0, y: 0, z: 0}
   RFRot: {x: 0, y: 0, z: 0, w: 0}
-  TestText: {fileID: 2121735494}
   prefabToInstantiate: {fileID: 2069762350}
 --- !u!4 &401990549
 Transform:
@@ -66713,8 +66712,8 @@ Transform:
   m_GameObject: {fileID: 980043129}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.676, y: 1.473, z: 0.641}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_LocalPosition: {x: 0.676, y: 1.609, z: 0.641}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1699651699}
@@ -134507,7 +134506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2121735493
 RectTransform:
   m_ObjectHideFlags: 0
