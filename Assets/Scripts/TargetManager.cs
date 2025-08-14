@@ -66,7 +66,7 @@ public class TargetManager : MonoBehaviour
     public List<float> distance = new List<float>();
     public List<float> size = new List<float>();
     public List<float> indexOfDifficulty = new List<float>(); //Mathf.Log((distance[0]/size[0])+1,2);*/
-    private float currTargetSpeed;
+    public float currTargetSpeed;
     public List<float> movementTime = new List<float>();
     public List<float> timestamp = new List<float>();
     public List<Vector3> targetPositions = new List<Vector3>();
@@ -147,6 +147,7 @@ public class TargetManager : MonoBehaviour
         movementTime = new List<float>();
         targetPositions = new List<Vector3>();
         selectionStepCount = new List<int>();
+        stepCount = new List<int>();
         selectionPositions = new List<Vector3>();
         successfulSelection = new List<bool>();
         rawQuaternions = new List<Quaternion>();
@@ -329,9 +330,9 @@ public class TargetManager : MonoBehaviour
 
     public void InitialiseTrial()
     {
-        Reset();
         UserStudy.instance.LoadCurrentParticipantRecord();
         UserStudy.instance.LoadCurrentSettings();
+        Reset();
         UserStudy.instance.PrepareStudy();
         targets[0].OnTargetSelect();
         
@@ -395,8 +396,9 @@ public class TargetManager : MonoBehaviour
             {
                 timer += Time.deltaTime;
                 cumulativeTime += Time.deltaTime;
-                if (currTargetSpeed != 0)
-                {
+                // if (currTargetSpeed != 0)
+                // {
+                    //Debug.Log("hahah");
                     var a = new Vector3(0,0,LFPos.z);
                     var b = new Vector3(0,0,RFPos.z);
                     
@@ -409,12 +411,11 @@ public class TargetManager : MonoBehaviour
                     }
                     prevDerivative = derivative;
                     prevFeetDistance = d;
-                    Debug.Log(currStepCount.ToString() + " distance: "+d.ToString("F2") + " derivative: " + derivative.ToString("F2"));
-                    //TestText.text = currStepCount.ToString() + " distance: " + d.ToString("F2") + " derivative: " +
-                                    derivative.ToString("F2");
-                }
+                    //Debug.Log(currStepCount.ToString() + " distance: "+d.ToString("F2") + " derivative: " + derivative.ToString("F2"));
+                    //TestText.text = currStepCount.ToString() + " distance: " + d.ToString("F2") + " derivative: " +derivative.ToString("F2"); 
+                
             }
-        }
+        } 
 
         if (OVRInput.GetDown(OVRInput.RawButton.A))
         {

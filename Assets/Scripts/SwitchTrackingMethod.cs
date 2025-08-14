@@ -11,7 +11,7 @@ public class SwitchTrackingMethod : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        anchor.parent = viconFingerTipTrans; 
     }
 
     // Update is called once per frame
