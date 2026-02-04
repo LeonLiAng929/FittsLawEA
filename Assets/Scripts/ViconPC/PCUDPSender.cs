@@ -7,7 +7,7 @@ public class PCUDPSender : MonoBehaviour
 {
     [Header("UDP Settings")]
     [Tooltip("Quest’s IP on your LAN (set this to the Quest IP)")]
-    public string remoteIP   = "192.168.137.144";
+    public string remoteIP   = "192.168.137.169";
     [Tooltip("Must match Quest listener’s listenPort")]
     public int    remotePort = 51002;
 
@@ -46,6 +46,8 @@ public class PCUDPSender : MonoBehaviour
         Vector3  controllerP = controllerTip.position;
         Quaternion controllerR = controllerTip.rotation;
 
+        Vector3 pred = FittsPredictor.Instance.CurrentPredictionLocal;
+
         // Format as CSV: x,y,z,qx,qy,qz,qw
         string msg = $"{fingerP.x:F3},{fingerP.y:F3},{fingerP.z:F3}," +
                      $"{fingerR.x:F3},{fingerR.y:F3},{fingerR.z:F3},{fingerR.w:F3},"+
@@ -56,7 +58,8 @@ public class PCUDPSender : MonoBehaviour
                      // $"{caliP.x:F3},{caliP.y:F3},{caliP.z:F3}," +
                      // $"{caliR.x:F3},{caliR.y:F3},{caliR.z:F3},{caliR.w:F3}," +
                      $"{controllerP.x:F3},{controllerP.y:F3},{controllerP.z:F3}," +
-                     $"{controllerR.x:F3},{controllerR.y:F3},{controllerR.z:F3},{controllerR.w:F3}";
+                     $"{controllerR.x:F3},{controllerR.y:F3},{controllerR.z:F3},{controllerR.w:F3},"+
+                     $"{pred.x:F4},{pred.y:F4},{pred.z:F4}"; // Higher precision F4 for prediction
 
         byte[] data = Encoding.UTF8.GetBytes(msg);
         udpClient.Send(data, data.Length, remoteEP);

@@ -52,7 +52,7 @@ public class
         LoadStudySettings();
         LoadCurrentParticipantRecord();
         LoadCurrentSettings();
-        LoadCalibrationMatrix();
+        //LoadCalibrationMatrix();
         UpdateStatus();
         
         //currentSettingIndex = userStudySettings[currentID][currentConditionIndex];
@@ -103,7 +103,7 @@ public class
 
     private void OnApplicationQuit()
     {
-        //SaveCalibrationMatrix();
+        SaveCalibrationMatrix();
     }
 
     public void LoadCurrentParticipantRecord()

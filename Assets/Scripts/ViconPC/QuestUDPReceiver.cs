@@ -63,6 +63,9 @@ public class QuestUDPReceiver : MonoBehaviour
     private CaliMovementControl movementControl = CaliMovementControl.Position;
     private Quaternion rotOffset;
     
+    [Header("Prediction Visuals")]
+    public Transform targetBoard;    
+    public Transform predictionDot;
 
     private enum CaliMovementControl
     {
@@ -197,7 +200,7 @@ public class QuestUDPReceiver : MonoBehaviour
 
             // Parse x,y,z,qx,qy,qz,qw
             var parts = msg.Split(',');
-            if (parts.Length >= 28
+            if (parts.Length >= 31
                 && float.TryParse(parts[0], out float fingerX)
                 && float.TryParse(parts[1], out float fingerY)
                 && float.TryParse(parts[2], out float fingerZ)
@@ -226,6 +229,9 @@ public class QuestUDPReceiver : MonoBehaviour
                 && float.TryParse(parts[25], out float controllerqy)
                 && float.TryParse(parts[26], out float controllerqz)
                 && float.TryParse(parts[27], out float controllerqw)
+                && float.TryParse(parts[28], out float predX)
+                && float.TryParse(parts[29], out float predY)
+                && float.TryParse(parts[30], out float predZ)
                 )
             {
                 // Store raw Vicon pose
@@ -243,6 +249,14 @@ public class QuestUDPReceiver : MonoBehaviour
                 lastViconControllerPos = new Vector3(controllerX, controllerY, controllerZ);
                 lastViconControllerRot = new Quaternion(controllerqx, controllerqy, controllerqz, controllerqw);
 
+                
+                Vector3 localPred = new Vector3(predX, predY, predZ);
+                // 2. Convert to Quest World Space
+                // Since we sent "Board-Relative" coordinates from PC, 
+                // we apply them to the "Quest-Side Board". 
+                // This keeps it accurate even if PC and Quest world origins are different.
+                predictionDot.position = targetBoard.TransformPoint(localPred);
+                
                 if (fingertipAnchor != null)
                 {
                     if (tracking.vicon)
@@ -286,6 +300,7 @@ public class QuestUDPReceiver : MonoBehaviour
             //ApplyAlignment(alignmentTransform);
             calibrationDistanceError = CalculateCalibrationDistance();
             log.text = "Calibrated, " + $"[Quest Receiver] Listening on port {listenPort}";
+            QuestStateSender.Instance.SendUpdate();
             //calibrationContainer.gameObject.SetActive(false);
             //SaveOriginalPosition(); 
         }

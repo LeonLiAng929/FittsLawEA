@@ -428,6 +428,7 @@ public class TargetManager : MonoBehaviour
             if (ergonomic)
                 targetContainer.LookAt(CenterCamera);
             tiltingAngle = 180 - Vector3.Angle(Vector3.forward,targetContainer.forward);
+            //QuestStateSender.Instance.SendUpdate();
         }
         
         if (OVRInput.GetDown(OVRInput.RawButton.X))
