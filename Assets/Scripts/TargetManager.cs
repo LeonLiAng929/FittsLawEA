@@ -274,6 +274,7 @@ public class TargetManager : MonoBehaviour
                     timestamp.Add(cumulativeTime);
                     movementTime.Add(timer);
                     timer = 0;
+                    FittsPredictor.Instance.ResetTrial();
                 }
 
                 if (trialEnded)
